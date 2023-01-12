@@ -21,8 +21,9 @@ def save_as_pdf(locpalmtracer_file, idx, lsr, density_per_frame, cum_loc_per_fra
     # save in results/name_of_exp
     results_dir = os.path.join('results/'+exp+'/')
     sample_file = idx+'_'+lsr+'.pdf'
-    sample_file.replace('.PT', '')
+    sample_file = sample_file.replace('.PT', '')
+    print(sample_file)
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
     plt.savefig(results_dir+sample_file)
-    plt.close('all')
+    plt.close('all') 

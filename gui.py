@@ -94,7 +94,6 @@ class MyWindow:
         if input_n_fov != 1 and input_n_fov != 0:
             num_fov = ''.join(map(str, list(range(1,input_n_fov+1))))
             fov = ['FOV'+n_fov for n_fov in num_fov]
-        
         for i in self.files:
             if fov != None:
                 [idx, lsr, fov] = get_idx_laser_fov_for_each_well(self.index, self.laser, i, fov=fov)
