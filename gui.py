@@ -3,10 +3,11 @@ from tkinter import ttk
 from ttkthemes import ThemedStyle
 from tkinter.filedialog import askdirectory
 
-from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
-from utils import get_PALMTracer_files
+from utils import get_PALMTracer_files, get_poca_files
 from save_as_pdf import save_as_pdf
+from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from get_idx_laser_fov_for_each_well import get_idx_laser_fov_for_each_well
+from do_cumulative_number_clusters import do_cumulative_number_clusters
 
 import os
 
@@ -48,7 +49,6 @@ class MyWindow:
         self.num_fov.insert(0, "1")
 
         
-        
         # ------- LOCALIZATIONS ANALYSIS TAB -------
         self.use_ii_bool = BooleanVar()
         self.use_ii_bool.set(False)
@@ -60,16 +60,30 @@ class MyWindow:
         self.use_cum_loc_number = Checkbutton(tab2, text='Cumulative number of localizations', variable=self.get_cum_loc_number)
         self.use_cum_loc_number.grid(row=1, column=0, sticky='W', padx=10, pady=3)
         
-        self.exp_name_text = Label(tab2, text='Name of the Results Repertory')
+        self.exp_name_text = Label(tab2, text='Name of the PT Results Repertory')
         self.exp_name_text.grid(row=2, column=0, sticky='W', padx=5, pady=10)
         self.exp_name = Entry(tab2)
         self.exp_name.grid(row=2, column=1, columnspan=10, sticky="WE", pady=3)
-        self.exp_name.insert(0, "results_files")
+        self.exp_name.insert(0, "results_files_loc")
         
         self.run_exp_bool = BooleanVar()
         self.run_exp_bool.set(False)
-        self.run_exp = Button(tab2, text='Run Density Measurement', command=self.do_run_exp)
+        self.run_exp = Button(tab2, text='Run Density Measurement', command=self.do_run_loc_exp)
         self.run_exp.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        
+        
+        
+        # ------- CLUSTERS ANALYSIS TAB -------
+        self.run_exp_bool = BooleanVar()
+        self.run_exp_bool.set(False)
+        self.run_exp = Button(tab3, text='Get Cumulative Number of Clusters', command=self.do_run_cum_num_clus)
+        self.run_exp.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.run_exp_bool = BooleanVar()
+        self.run_exp_bool.set(False)
+        self.run_exp = Button(tab3, text='Get Photophysics Plots', command=self.do_run_cum_num_clus)
+        self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.poca_files = None
 
 
     def load_molecule_data(self):
@@ -77,17 +91,21 @@ class MyWindow:
             self.repertory_path = askdirectory(title="Select your Source directory")
             self.index = [f for f in os.listdir(self.repertory_path+'/') if os.path.isdir(os.path.join(self.repertory_path+'/', f))]
             self.files = get_PALMTracer_files(self.repertory_path)
+            self.poca_files = get_poca_files(self.repertory_path)
             print("Done:", "'"+self.repertory_path+"'", 'has been loaded')
         except:
             print("No directory selected")
-            
+
+
     def get_ii(self):
         None
 
+
     def get_cum_loc_number(self):
         None
+
         
-    def do_run_exp(self):
+    def do_run_loc_exp(self):
         # Generate list of FOV (FOV1, FOV2, FOV3...depending on the number of FOV)
         input_n_fov = 1
         fov=None
@@ -102,3 +120,8 @@ class MyWindow:
             cum_loc_per_frame, density_per_frame, avg_density = do_analysis_for_one_acquisition(i)
             save_as_pdf(i, idx, lsr, density_per_frame, cum_loc_per_frame, avg_density, self.exp_name.get())
         print("Analysis Done!")
+        
+                
+    def do_run_cum_num_clus(self):
+        do_cumulative_number_clusters(self.poca_files, self.exp_name.get())
+        print("Cumulative Clusters Analysis Done!")

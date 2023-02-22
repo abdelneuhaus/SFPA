@@ -1,6 +1,5 @@
-from utils import read_poca_files
-
-
+from utils import read_poca_files, get_poca_files
+import matplotlib.pyplot as plt
 
 def show_clusters_informations(files):
     """
@@ -12,10 +11,9 @@ def show_clusters_informations(files):
     for i in files:
         if "_cleaned" in i:
             tmp = read_poca_files(i)
-            print(i)
-            print("Clusters number:", len(tmp))
-            print("Median lifetime (frames):", float(tmp['lifetime'].quantile([0.5])))
-            print("Median #blinks (frames):", float(tmp['blinks'].quantile([0.5])))
-            print("Median #ON (frames):", float(tmp['# seq ON'].quantile([0.5])))
-            print("Median #OFF (frames):", float(tmp['# seq OFF'].quantile([0.5])))
-            print("")
+            plt.hist(tmp['# seq ON'], bins=len(tmp['# seq ON']))
+            plt.show()
+            
+
+files = get_poca_files('230126_stablefp/P24/B2/561-405.PT')
+show_clusters_informations(files)
