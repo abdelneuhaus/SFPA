@@ -8,6 +8,7 @@ from save_as_pdf import save_as_pdf
 from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from get_idx_laser_fov_for_each_well import get_idx_laser_fov_for_each_well
 from do_cumulative_number_clusters import do_cumulative_number_clusters
+from do_photophysics_parameters_plotting import do_photophysics_parameters_plotting
 
 import os
 
@@ -28,7 +29,7 @@ class MyWindow:
         # Tab 3 : PoCA output
         tab3 = ttk.Frame(window)
         window.add(tab3, text ='Clusters Analysis')
-        
+    
         window.pack(expand = 1, fill ="both")
 
 
@@ -81,7 +82,7 @@ class MyWindow:
 
         self.run_exp_bool = BooleanVar()
         self.run_exp_bool.set(False)
-        self.run_exp = Button(tab3, text='Get Photophysics Plots', command=self.do_run_cum_num_clus)
+        self.run_exp = Button(tab3, text='Get Photophysics Plots', command=self.do_photophysics_analysis)
         self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         self.poca_files = None
 
@@ -125,3 +126,8 @@ class MyWindow:
     def do_run_cum_num_clus(self):
         do_cumulative_number_clusters(self.poca_files, self.exp_name.get())
         print("Cumulative Clusters Analysis Done!")
+    
+    
+    def do_photophysics_analysis(self):
+        do_photophysics_parameters_plotting(self.poca_files, self.exp_name.get())
+        print("Cluster Photophysics Plotting Done!")

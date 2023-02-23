@@ -17,7 +17,7 @@ def do_cumulative_number_clusters(list_of_poca_files, exp):
         i.plot(ax=ax)
     plt.xlabel('Time (in frames)')
     plt.ylabel('Cumulative Number of Clusters')
-    plt.legend(list_of_poca_files)
+    plt.legend(list_of_poca_files, loc='lower right')
     results_dir = os.path.join('results/'+exp+'/')
     sample_file = 'cumulative_clusters.pdf'
     if not os.path.isdir(results_dir):
