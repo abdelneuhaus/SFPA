@@ -10,7 +10,6 @@ def read_poca_files(file):
     df.loc[df['# seq OFF'] > 300000, '# seq OFF'] = df['blinks']
     return df.iloc[:,:-1]
 
-
 def get_poca_files(repertory):
     a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('cleaned.txt')]
     return [x.replace("\\", "/") for x in a]

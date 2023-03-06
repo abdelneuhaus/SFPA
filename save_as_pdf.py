@@ -18,9 +18,11 @@ def save_as_pdf(locpalmtracer_file, idx, lsr, density_per_frame, cum_loc_per_fra
     axis2.set_ylabel("Cumul. number of localisations")
     axis2.set_xlabel('Time (frames)\n\nAverage density per frame: '+str(round(avg_density, 5))+' mol/µm²')
     fig.tight_layout()
+    
     # save in results/name_of_exp
-    results_dir = os.path.join('results/'+exp+'/')
-    sample_file = idx+'_'+lsr+'.pdf'
+    results_dir = os.path.join('results/'+exp+'/'+idx+'/')
+    print(results_dir)
+    sample_file = lsr+'.pdf'
     sample_file = sample_file.replace('.PT', '')
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
