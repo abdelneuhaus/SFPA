@@ -22,7 +22,3 @@ def get_length_off(random_list):
             count = sorted_lst[i] - sorted_lst[i-1] - 1
             retlist.append(count)
     return retlist
-
-a = [1,2,4,9,10]
-print(get_length_on(a))
-print(get_length_off(a)) # doit donner 1, 4

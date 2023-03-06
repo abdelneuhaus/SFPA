@@ -9,6 +9,7 @@ def do_analysis_for_one_acquisition(locpalmtracer_file, x_size_image=256, y_size
             if j not in loc_per_frame.index.values:
                 df = pd.DataFrame(0, columns=['id'], index=[j])
                 loc_per_frame = pd.concat([loc_per_frame, df]).sort_index()
+    
     # Calculate cumulative number of frame, density per frame and average density over the acquisition
     cum_loc_per_frame = loc_per_frame.cumsum()
     surface = (x_size_image*0.16)*(y_size_image*0.16)

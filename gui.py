@@ -3,8 +3,8 @@ from tkinter import ttk
 from ttkthemes import ThemedStyle
 from tkinter.filedialog import askdirectory
 
-from utils import get_PALMTracer_files, get_poca_files
-from save_as_pdf import save_as_pdf
+from utils import get_PALMTracer_files, get_poca_files, get_csv_poca_frame_files, get_csv_poca_intensity_files
+from save_loc_as_pdf import save_loc_as_pdf
 from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from get_idx_laser_fov_for_each_well import get_idx_laser_fov_for_each_well
 from do_cumulative_number_clusters import do_cumulative_number_clusters
@@ -85,6 +85,8 @@ class MyWindow:
         self.run_exp = Button(tab3, text='Get Photophysics Plots', command=self.do_photophysics_analysis)
         self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         self.poca_files = None
+        self.csv_intensity_files = None
+        self.csv_frame_files = None
 
 
     def load_molecule_data(self):
@@ -93,6 +95,8 @@ class MyWindow:
             self.index = [f for f in os.listdir(self.repertory_path+'/') if os.path.isdir(os.path.join(self.repertory_path+'/', f))]
             self.files = get_PALMTracer_files(self.repertory_path)
             self.poca_files = get_poca_files(self.repertory_path)
+            self.csv_intensity_files = get_csv_poca_intensity_files(self.repertory_path)
+            self.csv_frame_files = get_csv_poca_frame_files(self.repertory_path)
             print("Done:", "'"+self.repertory_path+"'", 'has been loaded')
         except:
             print("No directory selected")
@@ -119,7 +123,7 @@ class MyWindow:
             else:
                 [idx, lsr] = get_idx_laser_fov_for_each_well(self.index, self.laser, i)
             cum_loc_per_frame, density_per_frame, avg_density = do_analysis_for_one_acquisition(i)
-            save_as_pdf(i, idx, lsr, density_per_frame, cum_loc_per_frame, avg_density, self.exp_name.get())
+            save_loc_as_pdf(i, idx, lsr, density_per_frame, cum_loc_per_frame, avg_density, self.exp_name.get())
         print("Analysis Done!")
         
                 

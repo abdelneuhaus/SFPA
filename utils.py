@@ -14,6 +14,17 @@ def get_poca_files(repertory):
     a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('cleaned.txt')]
     return [x.replace("\\", "/") for x in a]
 
+def get_csv_poca_intensity_files(repertory):
+    a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('intensity.csv')]
+    return [x.replace("\\", "/") for x in a]
+
+def read_csv_poca(file):
+    return pd.read_csv(file).values.tolist()
+
+def get_csv_poca_frame_files(repertory):
+    a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('frame.csv')]
+    return [x.replace("\\", "/") for x in a]
+
 def get_PALMTracer_files(repertory):
     a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('locPALMTracer.txt')]
     return [x.replace("\\", "/") for x in a]
