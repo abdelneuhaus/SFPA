@@ -40,6 +40,7 @@ def get_num_fov_idx_results_dir(i, exp, PT_561, PT_405):
         idx = os.path.basename(os.path.normpath(i.replace(num_fov + PT_561, '')))
         results_dir = os.path.join('results', exp, idx, num_fov)
         title_plot = os.path.join(idx, num_fov)
+        
     elif 'FOV' in i and PT_405 in i:
         num_fov = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
         idx = os.path.basename(os.path.normpath(i.replace(num_fov + PT_405, '')))
@@ -119,7 +120,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             PT_405 = '/561-405.PT/locPALMTracer_cleaned.txt'
             PT_561 = '/561.PT/locPALMTracer_cleaned.txt'
             results_dir, title_plot = get_num_fov_idx_results_dir(i, exp, PT_561, PT_405)
-            plt.suptitle(title_plot,fontsize=14)
+            plt.suptitle(title_plot, fontsize=14)
         
         sample_file = '/photophysics_plots.pdf'
         sample_file = sample_file.replace('.PT', '')
