@@ -128,5 +128,5 @@ class MyWindow:
     
     
     def do_photophysics_analysis(self):
-        do_photophysics_parameters_plotting(self.poca_files, self.csv_intensity_files, self.csv_frame_files, self.exp_name.get(), self.isPT_bool.get())
+        do_photophysics_parameters_plotting(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.exp_name.get(), self.isPT_bool.get())
         print("Cluster Photophysics Plotting Done!")

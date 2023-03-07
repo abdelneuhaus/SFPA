@@ -96,7 +96,6 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
         _num_off_times = raw_file_poca.loc[:, '# seq OFF'].values.tolist() if num_off_times else None
 
 
-
         # imprime les éléments qui ne sont pas égaux à None
         non_none_elements = [_on_times, _off_times, _total_on, _num_blinks, _phot_per_loc, _phot_per_cluster, _num_on_times, _num_off_times]
         non_none_elements = [elem for elem in non_none_elements if elem is not None]
