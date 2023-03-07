@@ -3,6 +3,7 @@ import os
 
 from utils import read_locPALMTracer_file
 
+
 def save_loc_as_pdf(locpalmtracer_file, idx, lsr, density_per_frame, cum_loc_per_frame, avg_density, exp):
     raw_file = read_locPALMTracer_file(locpalmtracer_file)
     fig = plt.figure()
@@ -20,10 +21,17 @@ def save_loc_as_pdf(locpalmtracer_file, idx, lsr, density_per_frame, cum_loc_per
     fig.tight_layout()
     
     # save in results/name_of_exp
-    results_dir = os.path.join('results/'+exp+'/'+idx+'/')
+    results_dir = os.path.join('results/'+exp+'/'+idx+'/').replace(".PT", "")
+    if 'FOV' in locpalmtracer_file and '561-405' in locpalmtracer_file:
+        num_fov=os.path.basename(os.path.normpath(locpalmtracer_file.replace('/561-405.PT/locPALMTracer.txt', '')))
+        results_dir = os.path.join('results/'+exp+'/'+idx+'/'+num_fov+'/')
+    elif 'FOV' in locpalmtracer_file and '561' in locpalmtracer_file:
+        num_fov=os.path.basename(os.path.normpath(locpalmtracer_file.replace('/561.PT/locPALMTracer.txt', '')))
+        results_dir = os.path.join('results/'+exp+'/'+idx+'/'+num_fov+'/')
+        
     sample_file = lsr+'.pdf'
     sample_file = sample_file.replace('.PT', '')
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
     plt.savefig(results_dir+sample_file)
-    plt.close('all') 
+    plt.close('all')

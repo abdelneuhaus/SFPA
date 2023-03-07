@@ -43,12 +43,10 @@ class MyWindow:
         self.files = None
         self.laser = ['561.PT', '561-405.PT']
         
-        self.num_fov_text = Label(tab1, text='Number of FOV per well')
-        self.num_fov_text.grid(row=1, column=0, sticky='W', padx=5, pady=10)
-        self.num_fov = Entry(tab1)
-        self.num_fov.grid(row=1, column=1, columnspan=10, sticky="WE", pady=3)
-        self.num_fov.insert(0, "1")
-
+        self.isPT_bool = BooleanVar()
+        self.isPT_bool.set(True)
+        self.isPT = Checkbutton(tab1, text='HCS-PALMTracer experiment', variable=self.isPT_bool)
+        self.isPT.grid(row=1, column=0, sticky='W', padx=10, pady=3)
         
         # ------- LOCALIZATIONS ANALYSIS TAB -------
         self.use_ii_bool = BooleanVar()
@@ -97,6 +95,7 @@ class MyWindow:
             self.poca_files = get_poca_files(self.repertory_path)
             self.csv_intensity_files = get_csv_poca_intensity_files(self.repertory_path)
             self.csv_frame_files = get_csv_poca_frame_files(self.repertory_path)
+            self.isPT_bool.set(True)
             print("Done:", "'"+self.repertory_path+"'", 'has been loaded')
         except:
             print("No directory selected")
@@ -111,18 +110,14 @@ class MyWindow:
 
         
     def do_run_loc_exp(self):
-        # Generate list of FOV (FOV1, FOV2, FOV3...depending on the number of FOV)
-        input_n_fov = 1
-        fov=None
-        if input_n_fov != 1 and input_n_fov != 0:
-            num_fov = ''.join(map(str, list(range(1,input_n_fov+1))))
-            fov = ['FOV'+n_fov for n_fov in num_fov]
         for i in self.files:
-            if fov != None:
-                [idx, lsr, fov] = get_idx_laser_fov_for_each_well(self.index, self.laser, i, fov=fov)
-            else:
-                [idx, lsr] = get_idx_laser_fov_for_each_well(self.index, self.laser, i)
+            if self.isPT_bool.get() == False:
+                self.laser = self.index
+            # Get laser and well name
+            [idx, lsr] = get_idx_laser_fov_for_each_well(self.index, self.laser, i)
+            # Get data about localisation, density...
             cum_loc_per_frame, density_per_frame, avg_density = do_analysis_for_one_acquisition(i)
+            # Plot and saving plots
             save_loc_as_pdf(i, idx, lsr, density_per_frame, cum_loc_per_frame, avg_density, self.exp_name.get())
         print("Analysis Done!")
         
@@ -133,5 +128,5 @@ class MyWindow:
     
     
     def do_photophysics_analysis(self):
-        do_photophysics_parameters_plotting(self.poca_files, self.exp_name.get())
+        do_photophysics_parameters_plotting(self.poca_files, self.csv_intensity_files, self.csv_frame_files, self.exp_name.get(), self.isPT_bool.get())
         print("Cluster Photophysics Plotting Done!")
