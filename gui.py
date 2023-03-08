@@ -9,6 +9,8 @@ from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from get_idx_laser_fov_for_each_well import get_idx_laser_fov_for_each_well
 from do_cumulative_number_clusters import do_cumulative_number_clusters
 from do_photophysics_parameters_plotting import do_photophysics_parameters_plotting
+from do_heatmap_photophysics_parameters import do_heatmap_photophysics_parameters
+from do_heatmap_one_photophysics_parameter import do_heatmap_one_photophysics_parameter
 
 import os
 
@@ -45,21 +47,21 @@ class MyWindow:
         
         self.isPT_bool = BooleanVar()
         self.isPT_bool.set(True)
-        self.isPT = Checkbutton(tab1, text='HCS-PALMTracer experiment', variable=self.isPT_bool)
+        self.isPT = Checkbutton(tab1, text='HCS-PALMTracer experiment', variable=self.isPT_bool, bg='#FAFBFC')
         self.isPT.grid(row=1, column=0, sticky='W', padx=10, pady=3)
         
         # ------- LOCALIZATIONS ANALYSIS TAB -------
         self.use_ii_bool = BooleanVar()
         self.use_ii_bool.set(False)
-        self.use_ii = Checkbutton(tab2, text='Get Integrated Intensity', variable=self.get_ii)
+        self.use_ii = Checkbutton(tab2, text='Get Integrated Intensity', variable=self.get_ii, bg='#FAFBFC')
         self.use_ii.grid(row=0, column=0, sticky='W', padx=10, pady=3)
         
         self.use_cum_loc_number_bool = BooleanVar()
         self.use_cum_loc_number_bool.set(False)
-        self.use_cum_loc_number = Checkbutton(tab2, text='Cumulative number of localizations', variable=self.get_cum_loc_number)
+        self.use_cum_loc_number = Checkbutton(tab2, text='Cumulative number of localizations', variable=self.get_cum_loc_number, bg='#FAFBFC')
         self.use_cum_loc_number.grid(row=1, column=0, sticky='W', padx=10, pady=3)
         
-        self.exp_name_text = Label(tab2, text='Name of the PT Results Repertory')
+        self.exp_name_text = Label(tab2, text='Name of the PT Results Repertory', bg='#FAFBFC')
         self.exp_name_text.grid(row=2, column=0, sticky='W', padx=5, pady=10)
         self.exp_name = Entry(tab2)
         self.exp_name.grid(row=2, column=1, columnspan=10, sticky="WE", pady=3)
@@ -86,7 +88,36 @@ class MyWindow:
         self.csv_intensity_files = None
         self.csv_frame_files = None
 
+        self.get_experiment_heatmap_bool = BooleanVar()
+        self.get_experiment_heatmap_bool.set(False)
+        self.get_experiment_heatmap = Button(tab3, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
+        self.get_experiment_heatmap.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
 
+        self.get_one_heatmap_bool = BooleanVar()
+        self.get_one_heatmap_bool.set(False)
+        self.get_one_heatmap = Button(tab3, text='Get Photophysics Parameter Heatmap', command=self.do_one_heatmap)
+        self.get_one_heatmap.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        
+        self.index_we_want = []
+        self.phot_parameters = ['ON times', 'OFF times', "Intensity/loc", 'total ON',
+                                'blinks', 'intensity', '# seq ON', '#seq OFF']
+
+        self.options = ["Length ON times", "Length OFF times", "Intensity/Loc.", "Total ON time",
+                "Num. Blinks", "Intensity/Clus.", "Num. ON time", "Num. OFF time"]
+
+        self.checkbox_vars = []
+        for i in range(0,4):
+            var = IntVar()
+            self.checkbox_vars.append(var)
+            checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
+            checkbox.grid(row=i+4, column=0, sticky='W')
+        for i in range(4,8):
+            var = IntVar()
+            self.checkbox_vars.append(var)
+            checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
+            checkbox.grid(row=i, column=1, sticky='W')
+            
+        
     def load_molecule_data(self):
         try:
             self.repertory_path = askdirectory(title="Select your Source directory")
@@ -130,3 +161,13 @@ class MyWindow:
     def do_photophysics_analysis(self):
         do_photophysics_parameters_plotting(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.exp_name.get(), self.isPT_bool.get())
         print("Cluster Photophysics Plotting Done!")
+        
+    def do_heatmap_whole_exp(self):
+        do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files)
+        print("Heatmap for the Whole Experiment Done!")
+        
+    def do_one_heatmap(self):
+        self.checkbox_values = [option for option, var in zip(range(0, 8), self.checkbox_vars) if var.get()]
+        self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
+        do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, self.csv_intensity_files)
+        print("Heatmap(s) for Selected Parameters Done!")
