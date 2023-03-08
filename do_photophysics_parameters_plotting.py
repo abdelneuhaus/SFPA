@@ -56,7 +56,6 @@ def get_num_fov_idx_results_dir(i, exp, PT_561, PT_405):
         idx = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
         results_dir = os.path.join('results', exp, idx)
         title_plot = os.path.join(idx)
-
     return results_dir, title_plot
 
 

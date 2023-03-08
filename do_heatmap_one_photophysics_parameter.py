@@ -7,10 +7,17 @@ import seaborn as sns
 import numpy as np
 import statistics
 import matplotlib.pyplot as plt
+import math 
 
 import numpy as np 
 from pandas import DataFrame
 import seaborn as sns
+
+
+def pad_list(lst):
+    while len(lst) < 8:
+        lst.append(float('nan'))
+    return lst
 
 
 def get_num_fov_idx_results_dir(i, PT_561, PT_405):
@@ -18,16 +25,13 @@ def get_num_fov_idx_results_dir(i, PT_561, PT_405):
         num_fov = os.path.basename(os.path.normpath(i.replace(PT_561, '')))
         idx = os.path.basename(os.path.normpath(i.replace(num_fov + PT_561, '')))
         title_plot = os.path.join(idx, num_fov)
-        
     elif 'FOV' in i and PT_405 in i:
         num_fov = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
         idx = os.path.basename(os.path.normpath(i.replace(num_fov + PT_405, '')))
         title_plot = os.path.join(idx, num_fov)
-
     elif PT_561 in i:
         idx = os.path.basename(os.path.normpath(i.replace(PT_561, '')))
         title_plot = os.path.join(idx)
-
     elif PT_405 in i:
         idx = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
         title_plot = os.path.join(idx)
@@ -78,11 +82,17 @@ def fusion_position(liste1, liste2):
         resultat.append(liste1[i] + ': ' + liste2[i])
     return resultat
 
+def photon_calculation(liste):
+    exp_liste = []
+    sigma = 1
+    for valeur in liste:
+        exp_liste.append(int(2*math.pi*sigma*valeur))
+    return exp_liste
 
 
-def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv):
+def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, isPT=True, stats=statistics.mean):
     csv_frame_label  = ['ON times', "OFF times"]
-    csv_int_label =  "Intensity/loc"
+    csv_int_label =  "Intensity_loc"
     
     idx = ['1', '2', '3', '4']
     cols = ['A', 'B']
@@ -94,28 +104,39 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         if i in csv_frame_label:
             if i == 'ON times':
                 for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(pre_process_on_frame_csv(list_of_frame_csv[f]))
+                    heatmap_data.append(int(stats(pre_process_on_frame_csv(list_of_frame_csv[f]))))
             else:
                 for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(pre_process_off_frame_csv(list_of_frame_csv[f]))
-        
-        elif i == csv_int_label:
-            for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(pre_process_single_intensity(list_of_int_csv[f]))
+                    heatmap_data.append(int(stats(pre_process_off_frame_csv(list_of_frame_csv[f]))))
         
         # Case where index is 'intensity per loc'
+        elif i == csv_int_label:
+            for f in range(len(list_of_frame_csv)):
+                    heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f])))))
+        
+        # Case where we read from locPALMTracer_cleaned file
         else:
             for f in range(len(list_of_poca_files)):
                 raw_file_poca = read_poca_files(list_of_poca_files[f])
-                heatmap_data.append(int(statistics.mean(raw_file_poca.loc[:, i].values.tolist())))
+                if i == 'intensity':
+                    heatmap_data.append(int(stats(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))))
+                else:
+                    heatmap_data.append(int(stats(raw_file_poca.loc[:, i].values.tolist())))
         
+        # We initialize well names
         well_name = []
-        for d in range(len(list_of_poca_files)):
-            name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
-            well_name.append(name)
-        legend = fusion_position(all_wells, well_name)
-        
-        
+        if isPT == True:
+            for d in range(len(list_of_poca_files)):
+                name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
+                well_name.append(name)
+            legend = fusion_position(all_wells, well_name)
+        else:
+            legend = list()
+            for d in list_of_poca_files:
+                legend.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
+            heatmap_data = pad_list(heatmap_data)
+
+        # Rotation of the 8x1 data to 2x4 and plot it on the heatmap
         df = DataFrame(np.array(heatmap_data).reshape(2,4), index=cols, columns=idx)
         sns.heatmap(df, annot=True, fmt='g')
         plt.yticks(rotation=0)

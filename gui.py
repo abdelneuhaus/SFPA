@@ -13,7 +13,7 @@ from do_heatmap_photophysics_parameters import do_heatmap_photophysics_parameter
 from do_heatmap_one_photophysics_parameter import do_heatmap_one_photophysics_parameter
 
 import os
-
+import statistics
 
 class MyWindow:
     
@@ -47,8 +47,24 @@ class MyWindow:
         
         self.isPT_bool = BooleanVar()
         self.isPT_bool.set(True)
-        self.isPT = Checkbutton(tab1, text='HCS-PALMTracer experiment', variable=self.isPT_bool, bg='#FAFBFC')
+        self.isPT = Checkbutton(tab1, text='PALMTracer experiment (After Loading)', variable=self.isPT_bool, bg='#FAFBFC')
         self.isPT.grid(row=1, column=0, sticky='W', padx=10, pady=3)
+        
+        self.exp_name_text = Label(tab1, text='Name for Results Repertory', bg='#FAFBFC')
+        self.exp_name_text.grid(row=2, column=0, sticky='W', padx=5, pady=10)
+        self.exp_name = Entry(tab1)
+        self.exp_name.grid(row=2, column=1, columnspan=10, sticky="WE", pady=3)
+        self.exp_name.insert(0, "results_files_loc")
+        
+        # Select statistic to use for heatmaps
+        self.stats_choice = Label(tab1, text = "Statistical value used for heatmaps", bg='#FAFBFC')
+        self.stats_choice.grid(row=3, column=0, sticky="W", pady=3, ipadx=1, padx=5)
+        self.list_stats_choice = ["Mean", "Median"]
+        self.widget_stats_choice = ttk.Combobox(tab1, values=self.list_stats_choice, state="readonly")
+        self.widget_stats_choice.grid(row=4, column=0, sticky="W", pady=3, ipadx=1, padx=5)
+        self.widget_stats_choice.current(0)
+        self.choice_stats = 'Mean'
+        self.method_choice_stats = statistics.mean
         
         # ------- LOCALIZATIONS ANALYSIS TAB -------
         self.use_ii_bool = BooleanVar()
@@ -61,16 +77,10 @@ class MyWindow:
         self.use_cum_loc_number = Checkbutton(tab2, text='Cumulative number of localizations', variable=self.get_cum_loc_number, bg='#FAFBFC')
         self.use_cum_loc_number.grid(row=1, column=0, sticky='W', padx=10, pady=3)
         
-        self.exp_name_text = Label(tab2, text='Name of the PT Results Repertory', bg='#FAFBFC')
-        self.exp_name_text.grid(row=2, column=0, sticky='W', padx=5, pady=10)
-        self.exp_name = Entry(tab2)
-        self.exp_name.grid(row=2, column=1, columnspan=10, sticky="WE", pady=3)
-        self.exp_name.insert(0, "results_files_loc")
-        
         self.run_exp_bool = BooleanVar()
         self.run_exp_bool.set(False)
         self.run_exp = Button(tab2, text='Run Density Measurement', command=self.do_run_loc_exp)
-        self.run_exp.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.run_exp.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         
         
         
@@ -99,26 +109,35 @@ class MyWindow:
         self.get_one_heatmap.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         
         self.index_we_want = []
-        self.phot_parameters = ['ON times', 'OFF times', "Intensity/loc", 'total ON',
+        self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
                                 'blinks', 'intensity', '# seq ON', '#seq OFF']
 
-        self.options = ["Length ON times", "Length OFF times", "Intensity/Loc.", "Total ON time",
-                "Num. Blinks", "Intensity/Clus.", "Num. ON time", "Num. OFF time"]
+        self.options = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
+                "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time"]
 
         self.checkbox_vars = []
+        self.checkboxs = list()
         for i in range(0,4):
             var = IntVar()
             self.checkbox_vars.append(var)
             checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i+4, column=0, sticky='W')
+            self.checkboxs.append(checkbox)
         for i in range(4,8):
             var = IntVar()
             self.checkbox_vars.append(var)
             checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i, column=1, sticky='W')
-            
+            self.checkboxs.append(checkbox)
+
+        self.check_everything = Button(tab3, text='Check Everything', command=self.select_all, bg='#FAFBFC')
+        self.check_everything.grid(row=9, column=0, sticky='W')
+        
         
     def load_molecule_data(self):
+        """
+        Load PALMTracer files (ending with locPALMTracer.txt), PoCA files (cleaned PT and csv files)
+        """        
         try:
             self.repertory_path = askdirectory(title="Select your Source directory")
             self.index = [f for f in os.listdir(self.repertory_path+'/') if os.path.isdir(os.path.join(self.repertory_path+'/', f))]
@@ -141,6 +160,9 @@ class MyWindow:
 
         
     def do_run_loc_exp(self):
+        """
+        Run the localization data analysis and plot the density through time
+        """        
         for i in self.files:
             if self.isPT_bool.get() == False:
                 self.laser = self.index
@@ -163,11 +185,26 @@ class MyWindow:
         print("Cluster Photophysics Plotting Done!")
         
     def do_heatmap_whole_exp(self):
-        do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files)
+        self.select_stats_method_heatmap()
+        do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.isPT_bool.get(), stats=self.method_choice_stats)
         print("Heatmap for the Whole Experiment Done!")
         
     def do_one_heatmap(self):
+        self.select_stats_method_heatmap()
         self.checkbox_values = [option for option, var in zip(range(0, 8), self.checkbox_vars) if var.get()]
         self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
-        do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, self.csv_intensity_files)
+        # print(self.index_we_want)
+        do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.isPT_bool.get(), stats=self.method_choice_stats)
         print("Heatmap(s) for Selected Parameters Done!")
+
+    def select_all(self):
+        for i in self.checkboxs:
+            i.invoke()
+            
+    def select_stats_method_heatmap(self):
+        # Obtenir l'élément sélectionné
+        self.choice_stats = self.widget_stats_choice.get()
+        if self.choice_stats == 'Mean':
+            self.method_choice_stats = statistics.mean
+        else:
+            self.method_choice_stats = statistics.median

@@ -8,7 +8,8 @@ import numpy as np
 import statistics
 import pandas as pd 
 import matplotlib.pyplot as plt
-import matplotlib
+import math
+
 
 def get_num_fov_idx_results_dir(i, PT_561, PT_405):
     if 'FOV' in i and PT_561 in i:
@@ -62,31 +63,46 @@ def pre_process_single_intensity(file):
         tmp.append(line)
     return [j for i in tmp for j in i]
 
+def photon_calculation(liste):
+    exp_liste = []
+    sigma = 1
+    for valeur in liste:
+        exp_liste.append(int(2*math.pi*sigma*valeur))
+    return exp_liste
 
 
-def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv):
+
+
+def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, isPT=True, stats=statistics.mean):
     heatmap_data = []
     for f in range(len(list_of_poca_files)):
         well_data = dict()
-        well_data['_on_times'] = int(statistics.mean(pre_process_on_frame_csv(list_of_frame_csv[f])))
-        well_data['_off_times'] = int(statistics.mean(pre_process_off_frame_csv(list_of_frame_csv[f])))
-        well_data['_phot_per_loc'] = int(statistics.mean(pre_process_single_intensity(list_of_int_csv[f])))
+        well_data['_on_times'] = int(stats(pre_process_on_frame_csv(list_of_frame_csv[f])))
+        well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f])))
+        well_data['_phot_per_loc'] = int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f]))))
         raw_file_poca = read_poca_files(list_of_poca_files[f])
-        well_data['_total_on'] = int(statistics.mean(raw_file_poca.loc[:, 'total ON'].values.tolist()))
-        well_data['_num_blinks'] = int(statistics.mean(raw_file_poca.loc[:, 'blinks'].values.tolist()))
-        well_data['_phot_per_cluster'] = int(statistics.mean(raw_file_poca.loc[:, 'intensity'].values.tolist()))
-        well_data['_num_on_times'] = int(statistics.mean(raw_file_poca.loc[:, '# seq ON'].values.tolist()))
-        well_data['_num_off_times'] = int(statistics.mean(raw_file_poca.loc[:, '# seq OFF'].values.tolist()))
+        well_data['_total_on'] = int(stats(raw_file_poca.loc[:, 'total ON'].values.tolist()))
+        well_data['_num_blinks'] = int(stats(raw_file_poca.loc[:, 'blinks'].values.tolist()))
+        well_data['_phot_per_cluster'] = int(stats(photon_calculation(raw_file_poca.loc[:, 'intensity'].values.tolist())))
+        well_data['_num_on_times'] = int(stats(raw_file_poca.loc[:, '# seq ON'].values.tolist()))
+        well_data['_num_off_times'] = int(stats(raw_file_poca.loc[:, '# seq OFF'].values.tolist()))
         heatmap_data.append(well_data)
 
 
     # Convert dict to pd.dataframe
     data = []
-    for d in range(len(heatmap_data)):
-        name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
-        b=pd.DataFrame.from_dict(heatmap_data[d], orient='index').rename({0:name}, axis='columns')
-        data.append(b)
-
+    if isPT == True:
+        for d in range(len(heatmap_data)):
+            name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
+            b=pd.DataFrame.from_dict(heatmap_data[d], orient='index').rename({0:name}, axis='columns')
+            data.append(b)
+    else:
+        name = list()
+        for d in range(len(heatmap_data)):
+            name = os.path.basename(os.path.normpath(list_of_poca_files[d].replace('.PT/locPALMTracer_cleaned.txt', '')))
+            b=pd.DataFrame.from_dict(heatmap_data[d], orient='index').rename({0:name}, axis='columns')
+            data.append(b)
+            
     # Create figure and convert dataframe to heatmap data
     fig, ax = plt.subplots(figsize=(14, 7))
     heatmap_data = pd.concat(data)
