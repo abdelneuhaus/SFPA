@@ -122,6 +122,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
     for h in list_of_sigma_csv:
         _sigma = pre_process_sigma(h, on_filter=True)
 
+    for i in list_of_poca_files:
         # imprime les éléments qui ne sont pas égaux à None
         non_none_elements = [_on_times, _off_times, _total_on, _num_blinks, _phot_per_loc, _phot_per_cluster, _num_on_times, _num_off_times]
         non_none_elements = [elem for elem in non_none_elements if elem is not None]
@@ -134,7 +135,8 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             col = m % 4
             ax = axes[row][col]
             ax.set_title(label[m]+', median:'+ str(statistics.median((df))))
-            ax.boxplot(df,showfliers=False)
+            ax.boxplot(df, showfliers=False)
+            # ax.hist(df, bins=50)
             
         # Si pas PT experiment (pas de 561-405) et que le nom du PT est le nom du dossier (dossier -> dossier.PT)
         title_plot = os.path.basename(os.path.normpath(i.replace('.PT/locPALMTracer_cleaned.txt', '')))
@@ -152,6 +154,8 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
         if not os.path.isdir(results_dir):
             os.makedirs(results_dir)
         plt.savefig(results_dir+sample_file)
+        print(j)
+        print(results_dir+sample_file)
         plt.close('all')
 
 
