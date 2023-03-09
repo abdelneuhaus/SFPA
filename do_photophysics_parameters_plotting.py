@@ -107,7 +107,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             init = len(raw_file_poca)
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
             post = len(raw_file_poca)
-            print("After One Event Dropping Step:", post*100/init)
+            print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
         # = bleachtime or total ON in frame number
         _total_on = raw_file_poca.loc[:, 'total ON'].values.tolist() if total_on else None
         # num blinks

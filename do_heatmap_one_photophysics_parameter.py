@@ -144,7 +144,7 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
                     init = len(raw_file_poca)
                     raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
                     post = len(raw_file_poca)
-                    print("After One Event Dropping Step:", post*100/init)
+                    print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
                 if i == 'intensity':
                     heatmap_data.append(int(stats(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))))
                 else:
