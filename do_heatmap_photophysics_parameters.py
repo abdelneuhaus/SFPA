@@ -99,11 +99,16 @@ def photon_calculation(liste):
 def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, isPT=True, stats=statistics.mean, drop_one_event=False):
     heatmap_data = []
     for f in range(len(list_of_poca_files)):
+        raw_file_poca = read_poca_files(list_of_poca_files[f])
+        if drop_one_event == True:
+            init = len(raw_file_poca)
+            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
+            post = len(raw_file_poca)
+            print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
         well_data = dict()
         well_data['_on_times'] = int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
         well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
         well_data['_phot_per_loc'] = int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))))
-        raw_file_poca = read_poca_files(list_of_poca_files[f])
         well_data['_total_on'] = int(stats(raw_file_poca.loc[:, 'total ON'].values.tolist()))
         well_data['_num_blinks'] = int(stats(raw_file_poca.loc[:, 'blinks'].values.tolist()))
         well_data['_phot_per_cluster'] = int(stats(photon_calculation(raw_file_poca.loc[:, 'intensity'].values.tolist())))
