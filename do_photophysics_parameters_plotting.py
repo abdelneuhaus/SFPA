@@ -1,9 +1,11 @@
-from utils import read_poca_files, get_poca_files, get_csv_poca_frame_files, get_csv_poca_intensity_files, read_csv_poca
+from utils import read_poca_files
 from get_length_on_off import get_length_off, get_length_on
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import csv
 import os
+import statistics
 
 
 def lire_csv(nom_fichier):
@@ -107,9 +109,9 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             row = m // 4
             col = m % 4
             ax = axes[row][col]
-            ax.set_title(label[m])
-            pd.DataFrame(df).boxplot(ax=ax)
-            ax.grid(visible=None)
+            ax.set_title(label[m]+', median:'+ str(statistics.median((df))))
+            ax.boxplot(df,showfliers=False)
+            
         # Si pas PT experiment (pas de 561-405) et que le nom du PT est le nom du dossier (dossier -> dossier.PT)
         title_plot = os.path.basename(os.path.normpath(i.replace('.PT/locPALMTracer_cleaned.txt', '')))
         results_dir = os.path.join('results/'+exp+'/'+title_plot+'/')

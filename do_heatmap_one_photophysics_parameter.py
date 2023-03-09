@@ -35,7 +35,6 @@ def get_num_fov_idx_results_dir(i, PT_561, PT_405):
     elif PT_405 in i:
         idx = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
         title_plot = os.path.join(idx)
-
     return title_plot
 
 def lire_csv(nom_fichier):
@@ -146,10 +145,10 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         colorbar_pos = colorbar.get_position()
 
         # Ajout de la boîte de texte à droite de l'échelle de couleur
-        boite_texte = plt.text(colorbar_pos.x1 + 0.05, colorbar_pos.y1, "\n".join(legend),
-                            transform=plt.gcf().transFigure, fontsize=10,
-                            verticalalignment='top', horizontalalignment='left',
-                            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+        plt.text(colorbar_pos.x1 + 0.05, colorbar_pos.y1, "\n".join(legend),
+                transform=plt.gcf().transFigure, fontsize=10,
+                verticalalignment='top', horizontalalignment='left',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
         plt.gcf().set_size_inches((12, 5))
         plt.title(i + ' mean')        
