@@ -1,4 +1,4 @@
-from utils import get_poca_files, get_csv_poca_frame_files, get_csv_poca_intensity_files, read_poca_files
+from utils import read_poca_files
 from get_length_on_off import get_length_off, get_length_on
 
 import os
@@ -39,28 +39,51 @@ def lire_csv(nom_fichier):
         for ligne in lecteur:
             # Convertir chaque élément de la ligne en entier (integer)
             ligne = [float(element) for element in ligne]
-            lignes.append(ligne)
+            lignes.append(ligne[1:])
     return lignes
 
-def pre_process_on_frame_csv(file):
+def pre_process_single_intensity(file, on_filter=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        tmp.append(get_length_on(line))
+        if on_filter==True:
+            if len(line) != 1: 
+                tmp.append(line)
+        else:
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
-def pre_process_off_frame_csv(file):
+def pre_process_on_frame_csv(file, on_filter=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        tmp.append(get_length_off(line))
+        if on_filter:
+            if (len(line) != 1):
+                tmp.append(get_length_on(line))
+        else:
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
-def pre_process_single_intensity(file):
+def pre_process_off_frame_csv(file, on_filter=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        tmp.append(line)
+        if on_filter==True:
+            if len(line) != 1:
+                tmp.append(get_length_off(line))
+        else:
+            tmp.append(line)
+    return [j for i in tmp for j in i]
+
+def pre_process_sigma(file, on_filter=False):
+    tmp = list()
+    file = lire_csv(file)
+    for line in file:
+        if on_filter==True:
+            if len(line) != 1: 
+                tmp.append(line)
+        else:
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
 def photon_calculation(liste):
@@ -73,13 +96,13 @@ def photon_calculation(liste):
 
 
 
-def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, isPT=True, stats=statistics.mean):
+def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, isPT=True, stats=statistics.mean, drop_one_event=False):
     heatmap_data = []
     for f in range(len(list_of_poca_files)):
         well_data = dict()
-        well_data['_on_times'] = int(stats(pre_process_on_frame_csv(list_of_frame_csv[f])))
-        well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f])))
-        well_data['_phot_per_loc'] = int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f]))))
+        well_data['_on_times'] = int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
+        well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
+        well_data['_phot_per_loc'] = int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))))
         raw_file_poca = read_poca_files(list_of_poca_files[f])
         well_data['_total_on'] = int(stats(raw_file_poca.loc[:, 'total ON'].values.tolist()))
         well_data['_num_blinks'] = int(stats(raw_file_poca.loc[:, 'blinks'].values.tolist()))
@@ -109,9 +132,10 @@ def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_cs
     heatmap_data = heatmap_data.groupby(heatmap_data.index).sum()
     heatmap_data = heatmap_data.replace(np.nan, 0)
 
-    # Normalize les MOYENNES (ON PEUT FAIRE LES MEDIANES)
+    # Normalise les MOYENNES (ON PEUT FAIRE LES MEDIANES) car sinon on a un trop gros écart sur une même plaque
     tab_n = heatmap_data.div(heatmap_data.max(axis=1), axis=0)
-    heatmap = sns.heatmap(tab_n, annot=True)
+    sns.heatmap(tab_n, annot=True)
+    # sns.heatmap(heatmap_data, annot=True)
 
     # Axis
     ax.set_xticks(np.arange(heatmap_data.shape[1])+0.5, minor=False)

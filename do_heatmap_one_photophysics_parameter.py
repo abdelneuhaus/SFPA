@@ -19,7 +19,6 @@ def pad_list(lst):
         lst.append(float('nan'))
     return lst
 
-
 def get_num_fov_idx_results_dir(i, PT_561, PT_405):
     if 'FOV' in i and PT_561 in i:
         num_fov = os.path.basename(os.path.normpath(i.replace(PT_561, '')))
@@ -44,28 +43,51 @@ def lire_csv(nom_fichier):
         for ligne in lecteur:
             # Convertir chaque élément de la ligne en entier (integer)
             ligne = [float(element) for element in ligne]
-            lignes.append(ligne)
+            lignes.append(ligne[1:])
     return lignes
 
-def pre_process_on_frame_csv(file):
+def pre_process_single_intensity(file, on_filter=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        tmp.append(get_length_on(line))
+        if on_filter==True:
+            if len(line) != 1: 
+                tmp.append(line)
+        else:
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
-def pre_process_off_frame_csv(file):
+def pre_process_on_frame_csv(file, on_filter=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        tmp.append(get_length_off(line))
+        if on_filter:
+            if (len(line) != 1):
+                tmp.append(get_length_on(line))
+        else:
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
-def pre_process_single_intensity(file):
+def pre_process_off_frame_csv(file, on_filter=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        tmp.append(line)
+        if on_filter==True:
+            if len(line) != 1:
+                tmp.append(get_length_off(line))
+        else:
+            tmp.append(line)
+    return [j for i in tmp for j in i]
+
+def pre_process_sigma(file, on_filter=False):
+    tmp = list()
+    file = lire_csv(file)
+    for line in file:
+        if on_filter==True:
+            if len(line) != 1: 
+                tmp.append(line)
+        else:
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
 def fusion(liste1, liste2):
@@ -89,7 +111,8 @@ def photon_calculation(liste):
     return exp_liste
 
 
-def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, isPT=True, stats=statistics.mean):
+def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, 
+                                          isPT=True, stats=statistics.mean, drop_one_event=False):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
     
@@ -103,15 +126,15 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         if i in csv_frame_label:
             if i == 'ON times':
                 for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(int(stats(pre_process_on_frame_csv(list_of_frame_csv[f]))))
+                    heatmap_data.append(int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))))
             else:
                 for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(int(stats(pre_process_off_frame_csv(list_of_frame_csv[f]))))
+                    heatmap_data.append(int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))))
         
         # Case where index is 'intensity per loc'
         elif i == csv_int_label:
             for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f])))))
+                    heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event)))))
         
         # Case where we read from locPALMTracer_cleaned file
         else:

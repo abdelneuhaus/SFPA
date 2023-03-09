@@ -3,7 +3,7 @@ from tkinter import ttk
 from ttkthemes import ThemedStyle
 from tkinter.filedialog import askdirectory
 
-from utils import get_PALMTracer_files, get_poca_files, get_csv_poca_frame_files, get_csv_poca_intensity_files
+from utils import get_PALMTracer_files, get_poca_files, get_csv_poca_frame_files, get_csv_poca_intensity_files, get_csv_poca_sigma_files
 from save_loc_as_pdf import save_loc_as_pdf
 from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from get_idx_laser_fov_for_each_well import get_idx_laser_fov_for_each_well
@@ -97,6 +97,7 @@ class MyWindow:
         self.poca_files = None
         self.csv_intensity_files = None
         self.csv_frame_files = None
+        self.csv_sigma_files = None
 
         self.get_experiment_heatmap_bool = BooleanVar()
         self.get_experiment_heatmap_bool.set(False)
@@ -110,7 +111,7 @@ class MyWindow:
         
         self.index_we_want = []
         self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
-                                'blinks', 'intensity', '# seq ON', '#seq OFF']
+                                'blinks', 'intensity', '# seq ON', '# seq OFF']
 
         self.options = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
                 "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time"]
@@ -134,6 +135,12 @@ class MyWindow:
         self.check_everything.grid(row=9, column=0, sticky='W')
         
         
+        self.drop_one_event_bool = BooleanVar()
+        self.drop_one_event_bool.set(False)
+        self.drop_one_event_check = Checkbutton(tab3, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
+        self.drop_one_event_check.grid(row=10, column=0, sticky='W')
+        
+        
     def load_molecule_data(self):
         """
         Load PALMTracer files (ending with locPALMTracer.txt), PoCA files (cleaned PT and csv files)
@@ -145,6 +152,7 @@ class MyWindow:
             self.poca_files = get_poca_files(self.repertory_path)
             self.csv_intensity_files = get_csv_poca_intensity_files(self.repertory_path)
             self.csv_frame_files = get_csv_poca_frame_files(self.repertory_path)
+            self.csv_sigma_files = get_csv_poca_sigma_files(self.repertory_path)
             self.isPT_bool.set(True)
             print("Done:", "'"+self.repertory_path+"'", 'has been loaded')
         except:
@@ -181,12 +189,14 @@ class MyWindow:
     
     
     def do_photophysics_analysis(self):
-        do_photophysics_parameters_plotting(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.exp_name.get(), self.isPT_bool.get())
+        do_photophysics_parameters_plotting(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.csv_sigma_files, 
+                                            self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get())
         print("Cluster Photophysics Plotting Done!")
         
     def do_heatmap_whole_exp(self):
         self.select_stats_method_heatmap()
-        do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.isPT_bool.get(), stats=self.method_choice_stats)
+        do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files, 
+                                           self.isPT_bool.get(), stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get())
         print("Heatmap for the Whole Experiment Done!")
         
     def do_one_heatmap(self):
@@ -194,7 +204,9 @@ class MyWindow:
         self.checkbox_values = [option for option, var in zip(range(0, 8), self.checkbox_vars) if var.get()]
         self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
         # print(self.index_we_want)
-        do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.isPT_bool.get(), stats=self.method_choice_stats)
+        do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
+                                              self.csv_intensity_files, self.isPT_bool.get(), stats=self.method_choice_stats,
+                                              drop_one_event=self.drop_one_event_bool.get())
         print("Heatmap(s) for Selected Parameters Done!")
 
     def select_all(self):
