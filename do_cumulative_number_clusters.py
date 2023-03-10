@@ -48,7 +48,7 @@ def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True):
     
     
     plt.legend(legend, loc='upper left')
-    
+    plt.grid(linestyle='-', linewidth=1)
     results_dir = os.path.join('results/'+exp+'/')
     sample_file = 'cumulative_clusters.pdf'
     if not os.path.isdir(results_dir):
