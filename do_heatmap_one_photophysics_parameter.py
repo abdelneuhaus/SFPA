@@ -105,7 +105,6 @@ def fusion_position(liste1, liste2):
 
 def photon_calculation(liste, sigma=1):
     exp_liste = []
-    # sigma = 1
     for valeur in liste:
         exp_liste.append(int(valeur/(math.sqrt(2*math.pi)*sigma)))
     return exp_liste
@@ -114,7 +113,7 @@ def photon_calculation(liste, sigma=1):
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
     for i in range(len(sigma)):
-        otp.append(float(sigma[i]/(math.sqrt(photon_loc[i]))))
+        otp.append(float(sigma[i]*160/(math.sqrt(photon_loc[i]))))
     return otp  
 
 
@@ -122,7 +121,7 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
                                           isPT=True, stats=statistics.mean, drop_one_event=False):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
-    csv_sigma_label = "Loc. Precision"
+    csv_sigma_label = "Loc_Precision"
     
     idx = ['1', '2', '3', '4']
     cols = ['A', 'B']
@@ -141,8 +140,13 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         
         # Case where index is 'intensity per loc'
         elif i == csv_int_label:
-            for f in range(len(list_of_frame_csv)):
-                    heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event)))))
+            for f in range(len(list_of_int_csv)):
+                heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event)))))
+         
+        # Case where we compute localization precision       
+        elif i == csv_sigma_label:
+            for f in range(len(list_of_sigma_csv)):
+                heatmap_data.append(float(stats(loc_prec_calculation(pre_process_sigma(list_of_sigma_csv[f], on_filter=drop_one_event), photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))))))
         
         # Case where we read from locPALMTracer_cleaned file
         else:

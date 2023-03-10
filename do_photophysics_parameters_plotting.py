@@ -117,7 +117,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
     for k in list_of_int_csv:
         # photon per localization
         _phot_per_loc = photon_calculation(pre_process_single_intensity(k, on_filter=drop_one_event)) if phot_per_loc else None
-        tmp_pho_loc.append(pre_process_single_intensity(k, on_filter=drop_one_event))
+        tmp_pho_loc.append(photon_calculation(pre_process_single_intensity(k, on_filter=drop_one_event)))
         
     for i in list_of_poca_files:
         raw_file_poca = read_poca_files(i)

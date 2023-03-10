@@ -114,7 +114,7 @@ def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_cs
         well_data = dict()
         well_data['_on_times'] = int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
         well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
-        tmp = pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event)
+        tmp = photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))
         tmp_pho_loc.append(tmp)
         well_data['_phot_per_loc'] = int(stats(photon_calculation(tmp)))
         well_data['_total_on'] = int(stats(raw_file_poca.loc[:, 'total ON'].values.tolist()))

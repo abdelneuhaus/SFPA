@@ -130,15 +130,21 @@ class MyWindow:
             checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i, column=1, sticky='W')
             self.checkboxs.append(checkbox)
-
+        # Loc precision
+        var = IntVar()
+        self.checkbox_vars.append(var)
+        checkbox = Checkbutton(tab3, text=self.options[8], variable=var, bg='#FAFBFC')
+        checkbox.grid(row=9, column=0, sticky='W')
+        self.checkboxs.append(checkbox)
+        
         self.check_everything = Button(tab3, text='Check Everything', command=self.select_all, bg='#FAFBFC')
-        self.check_everything.grid(row=9, column=0, sticky='W')
+        self.check_everything.grid(row=10, column=0, sticky='W')
         
         
         self.drop_one_event_bool = BooleanVar()
         self.drop_one_event_bool.set(False)
         self.drop_one_event_check = Checkbutton(tab3, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
-        self.drop_one_event_check.grid(row=10, column=0, sticky='W')
+        self.drop_one_event_check.grid(row=11, column=0, sticky='W')
         
         
     def load_molecule_data(self):
@@ -202,7 +208,7 @@ class MyWindow:
         
     def do_one_heatmap(self):
         self.select_stats_method_heatmap()
-        self.checkbox_values = [option for option, var in zip(range(0, 8), self.checkbox_vars) if var.get()]
+        self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars) if var.get()]
         self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
         # print(self.index_we_want)
         do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
