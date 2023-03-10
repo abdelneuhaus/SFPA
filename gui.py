@@ -111,10 +111,10 @@ class MyWindow:
         
         self.index_we_want = []
         self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
-                                'blinks', 'intensity', '# seq ON', '# seq OFF']
+                                'blinks', 'intensity', '# seq ON', '# seq OFF', 'Loc_Precision']
 
         self.options = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
-                "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time"]
+                "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time", "Loc. Precision"]
 
         self.checkbox_vars = []
         self.checkboxs = list()
@@ -196,7 +196,8 @@ class MyWindow:
     def do_heatmap_whole_exp(self):
         self.select_stats_method_heatmap()
         do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files, 
-                                           self.isPT_bool.get(), stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get())
+                                           self.csv_sigma_files, self.isPT_bool.get(), stats=self.method_choice_stats, 
+                                           drop_one_event=self.drop_one_event_bool.get())
         print("Heatmap for the Whole Experiment Done!")
         
     def do_one_heatmap(self):
@@ -205,8 +206,8 @@ class MyWindow:
         self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
         # print(self.index_we_want)
         do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
-                                              self.csv_intensity_files, self.isPT_bool.get(), stats=self.method_choice_stats,
-                                              drop_one_event=self.drop_one_event_bool.get())
+                                              self.csv_intensity_files, self.csv_sigma_files,self.isPT_bool.get(), 
+                                              stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get())
         print("Heatmap(s) for Selected Parameters Done!")
 
     def select_all(self):

@@ -103,18 +103,26 @@ def fusion_position(liste1, liste2):
         resultat.append(liste1[i] + ': ' + liste2[i])
     return resultat
 
-def photon_calculation(liste):
+def photon_calculation(liste, sigma=1):
     exp_liste = []
-    sigma = 1
+    # sigma = 1
     for valeur in liste:
-        exp_liste.append(int(2*math.pi*sigma*valeur))
+        exp_liste.append(int(valeur/(math.sqrt(2*math.pi)*sigma)))
     return exp_liste
 
 
-def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, 
+def loc_prec_calculation(sigma, photon_loc):
+    otp = []
+    for i in range(len(sigma)):
+        otp.append(float(sigma[i]/(math.sqrt(photon_loc[i]))))
+    return otp  
+
+
+def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
                                           isPT=True, stats=statistics.mean, drop_one_event=False):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
+    csv_sigma_label = "Loc. Precision"
     
     idx = ['1', '2', '3', '4']
     cols = ['A', 'B']
