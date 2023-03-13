@@ -66,6 +66,16 @@ class MyWindow:
         self.choice_stats = 'Mean'
         self.method_choice_stats = statistics.mean
         
+        # Select if we want boxplot or histogram
+        self.hist_box = Label(tab1, text = "Distribution Representation", bg='#FAFBFC')
+        self.hist_box.grid(row=5, column=0, sticky="W", pady=3, ipadx=1, padx=5)
+        self.list_hist_box = ["boxplot", "density histogram"]
+        self.widget_hist_box = ttk.Combobox(tab1, values=self.list_hist_box, state="readonly")
+        self.widget_hist_box.grid(row=6, column=0, sticky="W", pady=3, ipadx=1, padx=5)
+        self.widget_hist_box.current(0)
+        self.hist_box_choice = 'boxplot'
+        self.use_boxplot = True
+                
         # ------- LOCALIZATIONS ANALYSIS TAB -------
         self.use_ii_bool = BooleanVar()
         self.use_ii_bool.set(False)
@@ -195,8 +205,10 @@ class MyWindow:
     
     
     def do_photophysics_analysis(self):
+        self.select_stats_method_visu()
         do_photophysics_parameters_plotting(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.csv_sigma_files, 
-                                            self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get())
+                                            self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get(),
+                                            boxplot=self.use_boxplot)
         print("Cluster Photophysics Plotting Done!")
         
     def do_heatmap_whole_exp(self):
@@ -227,3 +239,11 @@ class MyWindow:
             self.method_choice_stats = statistics.mean
         else:
             self.method_choice_stats = statistics.median
+
+
+    def select_stats_method_visu(self):
+        self.hist_box_choice = self.widget_hist_box.get()
+        if self.hist_box_choice == 'boxplot':
+            self.use_boxplot = True
+        else:
+            self.use_boxplot = False

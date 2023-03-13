@@ -6,7 +6,8 @@ import csv
 import os
 import statistics
 import math
-
+import numpy as np
+from scipy.stats import norm
 
 def lire_csv(nom_fichier):
     lignes = []
@@ -106,7 +107,7 @@ def get_num_fov_idx_results_dir(i, exp, PT_561, PT_405):
 def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, exp=None, isPT=True,
                                         on_times=True, off_times=True, total_on=True, num_blinks=True,
                                         phot_per_loc=True, phot_per_cluster=True, num_on_times=True, 
-                                        num_off_times=True, sigma=True, drop_one_event=False):
+                                        num_off_times=True, sigma=True, drop_one_event=False, boxplot=True):
     for j in list_of_frame_csv:
         # length of each ON time
         _on_times = pre_process_on_frame_csv(j, on_filter=drop_one_event) if on_times else None
@@ -156,8 +157,14 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             col = m % 4
             ax = axes[row][col]
             ax.set_title(label[m]+', median:'+ str(statistics.median((df))))
-            ax.boxplot(df, showfliers=False)
-            # ax.hist(df, bins=50)
+            
+            if boxplot ==  True:
+            # Boxplot version
+                ax.boxplot(df, showfliers=False)
+            elif boxplot == False:   
+            #hist
+                ax.hist(df, 30, density=True);
+
             
         # Si pas PT experiment (pas de 561-405) et que le nom du PT est le nom du dossier (dossier -> dossier.PT)
         title_plot = os.path.basename(os.path.normpath(i.replace('.PT/locPALMTracer_cleaned.txt', '')))
