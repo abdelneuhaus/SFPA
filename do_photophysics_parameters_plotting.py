@@ -6,6 +6,9 @@ import csv
 import os
 import statistics
 import math
+import numpy as np
+from scipy import stats
+
 
 def lire_csv(nom_fichier):
     lignes = []
@@ -36,7 +39,7 @@ def pre_process_on_frame_csv(file, on_filter=False):
             if (len(line) != 1):
                 tmp.append(get_length_on(line))
         else:
-            tmp.append(line)
+            tmp.append(get_length_on(line))
     return [j for i in tmp for j in i]
 
 def pre_process_off_frame_csv(file, on_filter=False):
@@ -47,7 +50,7 @@ def pre_process_off_frame_csv(file, on_filter=False):
             if len(line) != 1:
                 tmp.append(get_length_off(line))
         else:
-            tmp.append(line)
+            tmp.append(get_length_off(line))
     return [j for i in tmp for j in i]
 
 def pre_process_sigma(file, on_filter=False):
@@ -149,11 +152,12 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             if boxplot ==  True:
             # Boxplot version
                 ax.boxplot(df, showfliers=False)
-            elif boxplot == False:   
-            #hist
-                ax.hist(df, 30, density=True);
 
-            
+            # Histogram version
+            elif boxplot == False:   
+                ax.hist(df, 50, density=True)
+                # retrouver le pdf comme sur le diapo UNE FOIS QUE LE RESTE EST FINI
+                
         # Si pas PT experiment (pas de 561-405) et que le nom du PT est le nom du dossier (dossier -> dossier.PT)
         title_plot = os.path.basename(os.path.normpath(list_of_poca_files[j].replace('.PT/locPALMTracer_cleaned.txt', '')))
         results_dir = os.path.join('results/'+exp+'/'+title_plot+'/')
@@ -171,8 +175,3 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             os.makedirs(results_dir)
         plt.savefig(results_dir+sample_file)
         plt.close('all')
-
-
-# from scipy.stats import mannwhitneyu
-# mannwhitney = mannwhitneyu(phot_per_mol[0], phot_per_mol[1])
-# print(mannwhitney)

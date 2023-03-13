@@ -61,7 +61,7 @@ def pre_process_on_frame_csv(file, on_filter=False):
             if (len(line) != 1):
                 tmp.append(get_length_on(line))
         else:
-            tmp.append(line)
+            tmp.append(get_length_on(line))
     return [j for i in tmp for j in i]
 
 def pre_process_off_frame_csv(file, on_filter=False):
@@ -72,7 +72,7 @@ def pre_process_off_frame_csv(file, on_filter=False):
             if len(line) != 1:
                 tmp.append(get_length_off(line))
         else:
-            tmp.append(line)
+            tmp.append(get_length_off(line))
     return [j for i in tmp for j in i]
 
 def pre_process_sigma(file, on_filter=False):
