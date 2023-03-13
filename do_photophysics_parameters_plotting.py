@@ -7,7 +7,7 @@ import os
 import statistics
 import math
 import numpy as np
-from scipy import stats
+from scipy.stats import gaussian_kde
 
 
 def lire_csv(nom_fichier):
@@ -103,6 +103,16 @@ def get_num_fov_idx_results_dir(i, exp, PT_561, PT_405):
     return results_dir, title_plot
 
 
+
+def crop_x(x_vals, y_vals, x_min, x_max):
+    """ Crops the x values and y values of a PDF outside of the specified range """
+    crop_mask = (x_vals >= x_min) & (x_vals <= x_max)
+    x_vals = x_vals[crop_mask]
+    y_vals = y_vals[crop_mask]
+    return x_vals, y_vals
+
+
+
 def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, exp=None, isPT=True,
                                         on_times=True, off_times=True, total_on=True, num_blinks=True,
                                         phot_per_loc=True, phot_per_cluster=True, num_on_times=True, 
@@ -154,9 +164,15 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
                 ax.boxplot(df, showfliers=False)
 
             # Histogram version
-            elif boxplot == False:   
-                ax.hist(df, 50, density=True)
-                # retrouver le pdf comme sur le diapo UNE FOIS QUE LE RESTE EST FINI
+            elif boxplot == False:
+                median = np.median(df)
+                left = np.percentile(df, 5)
+                right = np.percentile(df, 95)
+                cropped_data = [x for x in df if left <= x <= right]
+                ax.hist(cropped_data, bins=50, density=True)
+                ax.axvline(median, color='red', linestyle='dashed', linewidth=1)
+                
+            # retrouver le pdf comme sur le diapo UNE FOIS QUE LE RESTE EST FINI
                 
         # Si pas PT experiment (pas de 561-405) et que le nom du PT est le nom du dossier (dossier -> dossier.PT)
         title_plot = os.path.basename(os.path.normpath(list_of_poca_files[j].replace('.PT/locPALMTracer_cleaned.txt', '')))
