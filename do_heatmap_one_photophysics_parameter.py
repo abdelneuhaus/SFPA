@@ -106,7 +106,7 @@ def fusion_position(liste1, liste2):
 def photon_calculation(liste, sigma=1):
     exp_liste = []
     for valeur in liste:
-        exp_liste.append(valeur*0.04)
+        exp_liste.append(valeur*0.04/0.95)
     return exp_liste
 
 
@@ -118,7 +118,7 @@ def loc_prec_calculation(sigma, photon_loc):
 
 
 def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
-                                          isPT=True, stats=statistics.mean, drop_one_event=False):
+                                          isPT=True, stats=statistics.median, drop_one_event=False):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
     csv_sigma_label = "Loc_Precision"
@@ -191,7 +191,7 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
         plt.gcf().set_size_inches((12, 5))
-        plt.title(i + ' mean')        
+        plt.title(i + ' median')        
 
         # Save figure
         results_dir = os.path.join('results/'+exp+'/')
