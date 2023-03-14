@@ -106,7 +106,7 @@ def fusion_position(liste1, liste2):
 def photon_calculation(liste, sigma=1):
     exp_liste = []
     for valeur in liste:
-        exp_liste.append(int(valeur/(math.sqrt(2*math.pi)*sigma)))
+        exp_liste.append(valeur*0.04)
     return exp_liste
 
 

@@ -21,11 +21,16 @@ def get_num_fov_idx_results_dir(i, PT_561, PT_405):
     return title_plot
 
 
-def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True):
+def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True, drop_one_event=False):
     tmp = list()
     for i in list_of_poca_files:
-        raw_file = read_poca_files(i)
-        loc_per_frame = raw_file.groupby(['frame']).size()
+        raw_file_poca = read_poca_files(i)
+        if drop_one_event == True:
+            init = len(raw_file_poca)
+            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
+            post = len(raw_file_poca)
+            print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
+        loc_per_frame = raw_file_poca.groupby(['frame']).size()
         cum_loc_per_frame = loc_per_frame.cumsum()
         tmp.append(cum_loc_per_frame)
  

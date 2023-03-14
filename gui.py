@@ -200,7 +200,7 @@ class MyWindow:
         
                 
     def do_run_cum_num_clus(self):
-        do_cumulative_number_clusters(self.poca_files, self.exp_name.get(), self.isPT_bool.get())
+        do_cumulative_number_clusters(self.poca_files, self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get())
         print("Cumulative Clusters Analysis Done!")
     
     

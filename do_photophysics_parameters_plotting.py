@@ -64,17 +64,16 @@ def pre_process_sigma(file, on_filter=False):
             tmp.append(line)
     return [j for i in tmp for j in i]
 
-def photon_calculation(liste, sigma=1):
+def photon_calculation(liste):
     exp_liste = []
-    # sigma = 1
     for valeur in liste:
-        exp_liste.append(int(valeur/(math.sqrt(2*math.pi))))
+        exp_liste.append(valeur*0.04/0.95)
     return exp_liste
 
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
     for i in range(len(sigma)):
-        otp.append(float(sigma[i]/(math.sqrt(photon_loc[i]))))
+        otp.append(float(sigma[i]*160/(math.sqrt(photon_loc[i]))))
     return otp    
 
 # Define helper function
