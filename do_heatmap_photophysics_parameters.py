@@ -42,48 +42,84 @@ def lire_csv(nom_fichier):
             lignes.append(ligne[1:])
     return lignes
 
-def pre_process_single_intensity(file, on_filter=False):
+def pre_process_single_intensity(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
         if on_filter==True:
-            if len(line) != 1: 
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(line)
+            else:
+                if len(line) != 1:
+                    tmp.append(line)
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(line)
         else:
             tmp.append(line)
+            
     return [j for i in tmp for j in i]
 
-def pre_process_on_frame_csv(file, on_filter=False):
+def pre_process_on_frame_csv(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        if on_filter:
-            if (len(line) != 1):
+        if on_filter==True:
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(get_length_on(line))
+            else:
+                if len(line) != 1:
+                    tmp.append(get_length_on(line))
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(get_length_on(line))
         else:
             tmp.append(get_length_on(line))
+            
     return [j for i in tmp for j in i]
 
-def pre_process_off_frame_csv(file, on_filter=False):
+def pre_process_off_frame_csv(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
         if on_filter==True:
-            if len(line) != 1:
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(get_length_off(line))
+            else:
+                if len(line) != 1:
+                    tmp.append(get_length_off(line))
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(get_length_off(line))
         else:
             tmp.append(get_length_off(line))
+            
     return [j for i in tmp for j in i]
 
-def pre_process_sigma(file, on_filter=False):
+def pre_process_sigma(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
         if on_filter==True:
-            if len(line) != 1: 
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(line)
+            else:
+                if len(line) != 1:
+                    tmp.append(line)
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(line)
         else:
             tmp.append(line)
+            
     return [j for i in tmp for j in i]
 
 def photon_calculation(liste, sigma=1):
@@ -100,7 +136,8 @@ def loc_prec_calculation(sigma, photon_loc):
     return otp  
 
 
-def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, isPT=True, stats=statistics.median, drop_one_event=False):
+def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, 
+                                       isPT=True, stats=statistics.median, drop_one_event=False, drop_beads=False):
     heatmap_data = []
     cpt = 0
     tmp_pho_loc = list()
@@ -111,6 +148,8 @@ def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_cs
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
             post = len(raw_file_poca)
             print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
+        if drop_beads == True:
+                raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
         well_data = dict()
         well_data['_on_times'] = int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
         well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))

@@ -20,49 +20,86 @@ def lire_csv(nom_fichier):
             lignes.append(ligne[1:])
     return lignes
 
-def pre_process_single_intensity(file, on_filter=False):
+def pre_process_single_intensity(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
         if on_filter==True:
-            if len(line) != 1: 
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(line)
+            else:
+                if len(line) != 1:
+                    tmp.append(line)
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(line)
         else:
             tmp.append(line)
+            
     return [j for i in tmp for j in i]
 
-def pre_process_on_frame_csv(file, on_filter=False):
+def pre_process_on_frame_csv(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
-        if on_filter:
-            if (len(line) != 1):
+        if on_filter==True:
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(get_length_on(line))
+            else:
+                if len(line) != 1:
+                    tmp.append(get_length_on(line))
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(get_length_on(line))
         else:
             tmp.append(get_length_on(line))
+            
     return [j for i in tmp for j in i]
 
-def pre_process_off_frame_csv(file, on_filter=False):
+def pre_process_off_frame_csv(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
         if on_filter==True:
-            if len(line) != 1:
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(get_length_off(line))
+            else:
+                if len(line) != 1:
+                    tmp.append(get_length_off(line))
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(get_length_off(line))
         else:
             tmp.append(get_length_off(line))
+            
     return [j for i in tmp for j in i]
 
-def pre_process_sigma(file, on_filter=False):
+def pre_process_sigma(file, on_filter=False, beads=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
         if on_filter==True:
-            if len(line) != 1: 
+            if beads==True:
+                if (len(line) != 1) and (len(line) < 4000*0.6): 
+                    tmp.append(line)
+            else:
+                if len(line) != 1:
+                    tmp.append(line)
+
+        if on_filter==False and beads==True:
+            if len(line) < 4000*0.6: 
                 tmp.append(line)
         else:
             tmp.append(line)
+            
     return [j for i in tmp for j in i]
+
 
 def photon_calculation(liste):
     exp_liste = []
@@ -115,7 +152,8 @@ def crop_x(x_vals, y_vals, x_min, x_max):
 def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, exp=None, isPT=True,
                                         on_times=True, off_times=True, total_on=True, num_blinks=True,
                                         phot_per_loc=True, phot_per_cluster=True, num_on_times=True, 
-                                        num_off_times=True, sigma=True, drop_one_event=False, boxplot=True):
+                                        num_off_times=True, sigma=True, drop_one_event=False, boxplot=True,
+                                        drop_beads=False):
     tmp_pho_loc = list()
     cpt = 0
     for j in range(len(list_of_frame_csv)):
@@ -133,6 +171,8 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
             post = len(raw_file_poca)
             print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
+        if drop_beads == True:
+                raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
         # = bleachtime or total ON in frame number
         _total_on = raw_file_poca.loc[:, 'total ON'].values.tolist() if total_on else None
         # num blinks

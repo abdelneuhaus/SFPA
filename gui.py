@@ -156,6 +156,10 @@ class MyWindow:
         self.drop_one_event_check = Checkbutton(tab3, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
         self.drop_one_event_check.grid(row=11, column=0, sticky='W')
         
+        self.drop_beads_bool = BooleanVar()
+        self.drop_beads_bool.set(False)
+        self.drop_beads_bool_check = Checkbutton(tab3, text='Remove Beads', variable=self.drop_beads_bool, bg='#FAFBFC')
+        self.drop_beads_bool_check.grid(row=11, column=1, sticky='W')
         
     def load_molecule_data(self):
         """
@@ -200,7 +204,9 @@ class MyWindow:
         
                 
     def do_run_cum_num_clus(self):
-        do_cumulative_number_clusters(self.poca_files, self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get())
+        do_cumulative_number_clusters(self.poca_files, self.exp_name.get(), self.isPT_bool.get(), 
+                                      drop_one_event=self.drop_one_event_bool.get(),
+                                      drop_beads=self.drop_beads_bool.get())
         print("Cumulative Clusters Analysis Done!")
     
     
@@ -208,14 +214,14 @@ class MyWindow:
         self.select_stats_method_visu()
         do_photophysics_parameters_plotting(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.csv_sigma_files, 
                                             self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get(),
-                                            boxplot=self.use_boxplot)
+                                            boxplot=self.use_boxplot, drop_beads=self.drop_beads_bool.get())
         print("Cluster Photophysics Plotting Done!")
         
     def do_heatmap_whole_exp(self):
         self.select_stats_method_heatmap()
         do_heatmap_photophysics_parameters(self.exp_name.get(), self.poca_files, self.csv_frame_files, self.csv_intensity_files, 
                                            self.csv_sigma_files, self.isPT_bool.get(), stats=self.method_choice_stats, 
-                                           drop_one_event=self.drop_one_event_bool.get())
+                                           drop_one_event=self.drop_one_event_bool.get(), drop_beads=self.drop_beads_bool.get())
         print("Heatmap for the Whole Experiment Done!")
         
     def do_one_heatmap(self):
@@ -225,8 +231,10 @@ class MyWindow:
         # print(self.index_we_want)
         do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
                                               self.csv_intensity_files, self.csv_sigma_files,self.isPT_bool.get(), 
-                                              stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get())
+                                              stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get(),
+                                              drop_beads=self.drop_beads_bool.get())
         print("Heatmap(s) for Selected Parameters Done!")
+
 
     def select_all(self):
         for i in self.checkboxs:
