@@ -92,8 +92,6 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             # on doit filtrer sur le #blinks + total ON7
             # A combiner au préalable avec un time filter for clustering
             raw_file_poca = raw_file_poca[raw_file_poca['blinks'] > 15]
-            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
-
 
 
         # = bleachtime or total ON in frame number
