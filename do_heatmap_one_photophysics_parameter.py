@@ -1,12 +1,12 @@
 from utils import read_poca_files
 from preprocessing import pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_sigma, pre_process_single_intensity, get_num_fov_idx_results_dir
+from localization_precision import localization_precision
 
 import os
 import seaborn as sns
 import numpy as np
 import statistics
 import matplotlib.pyplot as plt
-import math 
 
 import numpy as np 
 from pandas import DataFrame
@@ -37,11 +37,10 @@ def photon_calculation(liste, sigma=1):
         exp_liste.append(valeur*0.04/0.95)
     return exp_liste
 
-
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
     for i in range(len(sigma)):
-        otp.append(float(sigma[i]*160/(math.sqrt(photon_loc[i]))))
+        otp.append(localization_precision(photon_loc[i], sigma[i]))
     return otp  
 
 

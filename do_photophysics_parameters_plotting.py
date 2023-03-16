@@ -1,11 +1,10 @@
 from utils import read_poca_files
 from preprocessing import pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_sigma, pre_process_single_intensity, get_num_fov_idx_results_dir
+from localization_precision import localization_precision
 
 import matplotlib.pyplot as plt
-import csv
 import os
 import statistics
-import math
 import numpy as np
 
 
@@ -18,7 +17,7 @@ def photon_calculation(liste):
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
     for i in range(len(sigma)):
-        otp.append(float(sigma[i]*160/(math.sqrt(photon_loc[i]))))
+        otp.append(localization_precision(photon_loc[i], sigma[i]))
     return otp    
 
 # Define helper function
