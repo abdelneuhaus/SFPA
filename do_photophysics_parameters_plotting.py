@@ -1,5 +1,5 @@
 from utils import read_poca_files
-from get_length_on_off import get_length_off, get_length_on
+from preprocessing import pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_sigma, pre_process_single_intensity, get_num_fov_idx_results_dir
 
 import matplotlib.pyplot as plt
 import csv
@@ -7,98 +7,6 @@ import os
 import statistics
 import math
 import numpy as np
-from scipy.stats import gaussian_kde
-
-
-def lire_csv(nom_fichier):
-    lignes = []
-    with open(nom_fichier, 'r') as f:
-        lecteur = csv.reader(f)
-        for ligne in lecteur:
-            # Convertir chaque élément de la ligne en entier (integer)
-            ligne = [float(element) for element in ligne]
-            lignes.append(ligne[1:])
-    return lignes
-
-def pre_process_single_intensity(file, on_filter=False, beads=False):
-    tmp = list()
-    file = lire_csv(file)
-    for line in file:
-        if on_filter==True:
-            if beads==True:
-                if (len(line) != 1) and (len(line) < 4000*0.6): 
-                    tmp.append(line)
-            else:
-                if len(line) != 1:
-                    tmp.append(line)
-
-        if on_filter==False and beads==True:
-            if len(line) < 4000*0.6: 
-                tmp.append(line)
-        else:
-            tmp.append(line)
-            
-    return [j for i in tmp for j in i]
-
-def pre_process_on_frame_csv(file, on_filter=False, beads=False):
-    tmp = list()
-    file = lire_csv(file)
-    for line in file:
-        if on_filter==True:
-            if beads==True:
-                if (len(line) != 1) and (len(line) < 4000*0.6): 
-                    tmp.append(get_length_on(line))
-            else:
-                if len(line) != 1:
-                    tmp.append(get_length_on(line))
-
-        if on_filter==False and beads==True:
-            if len(line) < 4000*0.6: 
-                tmp.append(get_length_on(line))
-        else:
-            tmp.append(get_length_on(line))
-            
-    return [j for i in tmp for j in i]
-
-def pre_process_off_frame_csv(file, on_filter=False, beads=False):
-    tmp = list()
-    file = lire_csv(file)
-    for line in file:
-        if on_filter==True:
-            if beads==True:
-                if (len(line) != 1) and (len(line) < 4000*0.6): 
-                    tmp.append(get_length_off(line))
-            else:
-                if len(line) != 1:
-                    tmp.append(get_length_off(line))
-
-        if on_filter==False and beads==True:
-            if len(line) < 4000*0.6: 
-                tmp.append(get_length_off(line))
-        else:
-            tmp.append(get_length_off(line))
-            
-    return [j for i in tmp for j in i]
-
-def pre_process_sigma(file, on_filter=False, beads=False):
-    tmp = list()
-    file = lire_csv(file)
-    for line in file:
-        if on_filter==True:
-            if beads==True:
-                if (len(line) != 1) and (len(line) < 4000*0.6): 
-                    tmp.append(line)
-            else:
-                if len(line) != 1:
-                    tmp.append(line)
-
-        if on_filter==False and beads==True:
-            if len(line) < 4000*0.6: 
-                tmp.append(line)
-        else:
-            tmp.append(line)
-            
-    return [j for i in tmp for j in i]
 
 
 def photon_calculation(liste):

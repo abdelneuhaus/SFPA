@@ -1,24 +1,8 @@
 from utils import read_poca_files
+from preprocessing import get_num_fov_idx_results_dir
+
 import matplotlib.pyplot as plt
 import os
-
-
-def get_num_fov_idx_results_dir(i, PT_561, PT_405):
-    if 'FOV' in i and PT_561 in i:
-        num_fov = os.path.basename(os.path.normpath(i.replace(PT_561, '')))
-        idx = os.path.basename(os.path.normpath(i.replace(num_fov + PT_561, '')))
-        title_plot = os.path.join(idx, num_fov)
-    elif 'FOV' in i and PT_405 in i:
-        num_fov = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
-        idx = os.path.basename(os.path.normpath(i.replace(num_fov + PT_405, '')))
-        title_plot = os.path.join(idx, num_fov)
-    elif PT_561 in i:
-        idx = os.path.basename(os.path.normpath(i.replace(PT_561, '')))
-        title_plot = os.path.join(idx)
-    elif PT_405 in i:
-        idx = os.path.basename(os.path.normpath(i.replace(PT_405, '')))
-        title_plot = os.path.join(idx)
-    return title_plot
 
 
 def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True, drop_one_event=False, drop_beads=False):
