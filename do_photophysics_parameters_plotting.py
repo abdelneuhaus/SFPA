@@ -60,7 +60,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
                                         on_times=True, off_times=True, total_on=True, num_blinks=True,
                                         phot_per_loc=True, phot_per_cluster=True, num_on_times=True, 
                                         num_off_times=True, sigma=True, drop_one_event=False, boxplot=True,
-                                        drop_beads=False):
+                                        drop_beads=False, use_one_event=False, use_super_blinkers=False):
     tmp_pho_loc = list()
     cpt = 0
     for j in range(len(list_of_frame_csv)):
@@ -73,13 +73,29 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
         tmp_pho_loc.append(photon_calculation(pre_process_single_intensity(list_of_int_csv[j], on_filter=drop_one_event)))
         
         raw_file_poca = read_poca_files(list_of_poca_files[j])
+        
+        # Condition to analyze
+        # No one-event cluster
         if drop_one_event == True:
             init = len(raw_file_poca)
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
             post = len(raw_file_poca)
             print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
+        # No beads
         if drop_beads == True:
-                raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
+            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.5]
+        # Get one-event cluster        
+        if use_one_event == True:
+            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] == 1]
+        # Get "long-blinkers"
+        if use_super_blinkers == True:
+            # on doit filtrer sur le #blinks + total ON7
+            # A combiner au préalable avec un time filter for clustering
+            raw_file_poca = raw_file_poca[raw_file_poca['blinks'] > 15]
+            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
+
+
+
         # = bleachtime or total ON in frame number
         _total_on = raw_file_poca.loc[:, 'total ON'].values.tolist() if total_on else None
         # num blinks
