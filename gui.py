@@ -27,11 +27,13 @@ class MyWindow:
         window.add(tab1, text ='Files & Informations')
         # Tab 2 : PALMTracer output
         tab2 = ttk.Frame(window)
-        window.add(tab2, text ='Localizations Analysis')
+        window.add(tab2, text ='Single Well Analysis')
         # Tab 3 : PoCA output
         tab3 = ttk.Frame(window)
-        window.add(tab3, text ='Clusters Analysis')
-    
+        window.add(tab3, text ='Well Plate Analysis')
+        # Tab 4 : Super/Supra-Blinkers
+        tab4 = ttk.Frame(window)
+        window.add(tab4, text ='Super/Supra-Blinkers')
         window.pack(expand = 1, fill ="both")
 
 
@@ -75,49 +77,39 @@ class MyWindow:
         self.widget_hist_box.current(0)
         self.hist_box_choice = 'boxplot'
         self.use_boxplot = True
+
                 
         # ------- LOCALIZATIONS ANALYSIS TAB -------
-        self.use_ii_bool = BooleanVar()
-        self.use_ii_bool.set(False)
-        self.use_ii = Checkbutton(tab2, text='Get Integrated Intensity', variable=self.get_ii, bg='#FAFBFC')
-        self.use_ii.grid(row=0, column=0, sticky='W', padx=10, pady=3)
-        
-        self.use_cum_loc_number_bool = BooleanVar()
-        self.use_cum_loc_number_bool.set(False)
-        self.use_cum_loc_number = Checkbutton(tab2, text='Cumulative number of localizations', variable=self.get_cum_loc_number, bg='#FAFBFC')
-        self.use_cum_loc_number.grid(row=1, column=0, sticky='W', padx=10, pady=3)
-        
         self.run_exp_bool = BooleanVar()
         self.run_exp_bool.set(False)
         self.run_exp = Button(tab2, text='Run Density Measurement', command=self.do_run_loc_exp)
-        self.run_exp.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.run_exp.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         
-        
-        
-        # ------- CLUSTERS ANALYSIS TAB -------
         self.run_exp_bool = BooleanVar()
         self.run_exp_bool.set(False)
-        self.run_exp = Button(tab3, text='Get Cumulative Number of Clusters', command=self.do_run_cum_num_clus)
-        self.run_exp.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.run_exp = Button(tab2, text='Get Cumulative Number of Clusters', command=self.do_run_cum_num_clus)
+        self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
 
         self.run_exp_bool = BooleanVar()
         self.run_exp_bool.set(False)
-        self.run_exp = Button(tab3, text='Get Photophysics Plots', command=self.do_photophysics_analysis)
-        self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.run_exp = Button(tab2, text='Get Photophysics Plots', command=self.do_photophysics_analysis)
+        self.run_exp.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         self.poca_files = None
         self.csv_intensity_files = None
         self.csv_frame_files = None
-        self.csv_sigma_files = None
-
+        self.csv_sigma_files = None      
+        
+          
+        # ------- CLUSTERS ANALYSIS TAB -------
         self.get_experiment_heatmap_bool = BooleanVar()
         self.get_experiment_heatmap_bool.set(False)
         self.get_experiment_heatmap = Button(tab3, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
-        self.get_experiment_heatmap.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.get_experiment_heatmap.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
 
         self.get_one_heatmap_bool = BooleanVar()
         self.get_one_heatmap_bool.set(False)
         self.get_one_heatmap = Button(tab3, text='Get Photophysics Parameter Heatmap', command=self.do_one_heatmap)
-        self.get_one_heatmap.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.get_one_heatmap.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         
         self.index_we_want = []
         self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
@@ -132,34 +124,91 @@ class MyWindow:
             var = IntVar()
             self.checkbox_vars.append(var)
             checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
-            checkbox.grid(row=i+4, column=0, sticky='W')
+            checkbox.grid(row=i+2, column=0, sticky='W')
             self.checkboxs.append(checkbox)
         for i in range(4,8):
             var = IntVar()
             self.checkbox_vars.append(var)
             checkbox = Checkbutton(tab3, text=self.options[i], variable=var, bg='#FAFBFC')
-            checkbox.grid(row=i, column=1, sticky='W')
+            checkbox.grid(row=i-2, column=1, sticky='W')
             self.checkboxs.append(checkbox)
         # Loc precision
         var = IntVar()
         self.checkbox_vars.append(var)
         checkbox = Checkbutton(tab3, text=self.options[8], variable=var, bg='#FAFBFC')
-        checkbox.grid(row=9, column=0, sticky='W')
+        checkbox.grid(row=7, column=0, sticky='W')
         self.checkboxs.append(checkbox)
         
         self.check_everything = Button(tab3, text='Check Everything', command=self.select_all, bg='#FAFBFC')
-        self.check_everything.grid(row=10, column=0, sticky='W')
-        
+        self.check_everything.grid(row=8, column=0, sticky='W')
         
         self.drop_one_event_bool = BooleanVar()
         self.drop_one_event_bool.set(False)
         self.drop_one_event_check = Checkbutton(tab3, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
-        self.drop_one_event_check.grid(row=11, column=0, sticky='W')
+        self.drop_one_event_check.grid(row=9, column=0, sticky='W')
         
         self.drop_beads_bool = BooleanVar()
         self.drop_beads_bool.set(False)
         self.drop_beads_bool_check = Checkbutton(tab3, text='Remove Beads', variable=self.drop_beads_bool, bg='#FAFBFC')
-        self.drop_beads_bool_check.grid(row=11, column=1, sticky='W')
+        self.drop_beads_bool_check.grid(row=9, column=1, sticky='W')
+        
+        
+        
+        # ------- SUPERBLINKERS ET SUPRABLINKERS TAB -------
+        self.get_experiment_heatmap_bool = BooleanVar()
+        self.get_experiment_heatmap_bool.set(False)
+        self.get_experiment_heatmap = Button(tab4, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
+        self.get_experiment_heatmap.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.get_one_heatmap_bool = BooleanVar()
+        self.get_one_heatmap_bool.set(False)
+        self.get_one_heatmap = Button(tab4, text='Get Photophysics Parameter Heatmap', command=self.do_one_heatmap)
+        self.get_one_heatmap.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        
+        self.index_we_want = []
+        self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
+                                'blinks', 'intensity', '# seq ON', '# seq OFF', 'Loc_Precision']
+
+        self.options = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
+                "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time", "Loc. Precision"]
+
+        self.checkbox_vars = []
+        self.checkboxs = list()
+        for i in range(0,4):
+            var = IntVar()
+            self.checkbox_vars.append(var)
+            checkbox = Checkbutton(tab4, text=self.options[i], variable=var, bg='#FAFBFC')
+            checkbox.grid(row=i+2, column=0, sticky='W')
+            self.checkboxs.append(checkbox)
+        for i in range(4,8):
+            var = IntVar()
+            self.checkbox_vars.append(var)
+            checkbox = Checkbutton(tab4, text=self.options[i], variable=var, bg='#FAFBFC')
+            checkbox.grid(row=i-2, column=1, sticky='W')
+            self.checkboxs.append(checkbox)
+        # Loc precision
+        var = IntVar()
+        self.checkbox_vars.append(var)
+        checkbox = Checkbutton(tab4, text=self.options[8], variable=var, bg='#FAFBFC')
+        checkbox.grid(row=7, column=0, sticky='W')
+        self.checkboxs.append(checkbox)
+        
+        self.check_everything = Button(tab4, text='Check Everything', command=self.select_all, bg='#FAFBFC')
+        self.check_everything.grid(row=8, column=0, sticky='W')
+        
+        self.drop_one_event_bool = BooleanVar()
+        self.drop_one_event_bool.set(False)
+        self.drop_one_event_check = Checkbutton(tab4, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
+        self.drop_one_event_check.grid(row=9, column=0, sticky='W')
+        
+        self.drop_beads_bool = BooleanVar()
+        self.drop_beads_bool.set(False)
+        self.drop_beads_bool_check = Checkbutton(tab4, text='Remove Beads', variable=self.drop_beads_bool, bg='#FAFBFC')
+        self.drop_beads_bool_check.grid(row=9, column=1, sticky='W')        
+        
+
+
+
         
     def load_molecule_data(self):
         """
@@ -179,14 +228,6 @@ class MyWindow:
             print("No directory selected")
 
 
-    def get_ii(self):
-        None
-
-
-    def get_cum_loc_number(self):
-        None
-
-        
     def do_run_loc_exp(self):
         """
         Run the localization data analysis and plot the density through time
@@ -216,6 +257,7 @@ class MyWindow:
                                             self.exp_name.get(), self.isPT_bool.get(), drop_one_event=self.drop_one_event_bool.get(),
                                             boxplot=self.use_boxplot, drop_beads=self.drop_beads_bool.get())
         print("Cluster Photophysics Plotting Done!")
+
         
     def do_heatmap_whole_exp(self):
         self.select_stats_method_heatmap()
@@ -223,6 +265,7 @@ class MyWindow:
                                            self.csv_sigma_files, self.isPT_bool.get(), stats=self.method_choice_stats, 
                                            drop_one_event=self.drop_one_event_bool.get(), drop_beads=self.drop_beads_bool.get())
         print("Heatmap for the Whole Experiment Done!")
+
         
     def do_one_heatmap(self):
         self.select_stats_method_heatmap()
@@ -239,6 +282,7 @@ class MyWindow:
     def select_all(self):
         for i in self.checkboxs:
             i.invoke()
+
             
     def select_stats_method_heatmap(self):
         # Obtenir l'élément sélectionné

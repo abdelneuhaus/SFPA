@@ -89,8 +89,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] == 1]
         # Get "long-blinkers"
         if use_super_blinkers == True:
-            # on doit filtrer sur le #blinks + total ON7
-            # A combiner au préalable avec un time filter for clustering
+            # on doit filtrer sur le #blinks + total ON
             raw_file_poca = raw_file_poca[raw_file_poca['blinks'] > 15]
 
 
