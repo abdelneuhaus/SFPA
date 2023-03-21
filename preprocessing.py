@@ -114,4 +114,3 @@ def get_num_fov_idx_results_dir(i, PT_561, PT_405):
         title_plot = os.path.join(idx)
 
     return title_plot
-

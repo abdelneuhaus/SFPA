@@ -11,6 +11,7 @@ from do_cumulative_number_clusters import do_cumulative_number_clusters
 from do_photophysics_parameters_plotting import do_photophysics_parameters_plotting
 from do_heatmap_photophysics_parameters import do_heatmap_photophysics_parameters
 from do_heatmap_one_photophysics_parameter import do_heatmap_one_photophysics_parameter
+from do_photophysics_number_super_supra_clusters import do_photophysics_number_super_supra_clusters
 
 import os
 import statistics
@@ -155,15 +156,25 @@ class MyWindow:
         
         
         # ------- SUPERBLINKERS ET SUPRABLINKERS TAB -------
+        self.run_exp_bool = BooleanVar()
+        self.run_exp_bool.set(False)
+        self.run_exp = Button(tab4, text='Get Cumulative Number of Clusters', command=self.do_run_cum_num_clus)
+        self.run_exp.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.run_exp_bool = BooleanVar()
+        self.run_exp_bool.set(False)
+        self.run_exp = Button(tab4, text='Get Photophysics Plots', command=self.do_photophysics_analysis_super_supra)
+        self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+    
         self.get_experiment_heatmap_bool = BooleanVar()
         self.get_experiment_heatmap_bool.set(False)
         self.get_experiment_heatmap = Button(tab4, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
-        self.get_experiment_heatmap.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.get_experiment_heatmap.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
 
         self.get_one_heatmap_bool = BooleanVar()
         self.get_one_heatmap_bool.set(False)
         self.get_one_heatmap = Button(tab4, text='Get Photophysics Parameter Heatmap', command=self.do_one_heatmap)
-        self.get_one_heatmap.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        self.get_one_heatmap.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
         
         self.index_we_want = []
         self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
@@ -178,38 +189,26 @@ class MyWindow:
             var = IntVar()
             self.checkbox_vars.append(var)
             checkbox = Checkbutton(tab4, text=self.options[i], variable=var, bg='#FAFBFC')
-            checkbox.grid(row=i+2, column=0, sticky='W')
+            checkbox.grid(row=i+4, column=0, sticky='W')
             self.checkboxs.append(checkbox)
         for i in range(4,8):
             var = IntVar()
             self.checkbox_vars.append(var)
             checkbox = Checkbutton(tab4, text=self.options[i], variable=var, bg='#FAFBFC')
-            checkbox.grid(row=i-2, column=1, sticky='W')
+            checkbox.grid(row=i, column=1, sticky='W')
             self.checkboxs.append(checkbox)
         # Loc precision
         var = IntVar()
         self.checkbox_vars.append(var)
         checkbox = Checkbutton(tab4, text=self.options[8], variable=var, bg='#FAFBFC')
-        checkbox.grid(row=7, column=0, sticky='W')
+        checkbox.grid(row=9, column=0, sticky='W')
         self.checkboxs.append(checkbox)
         
         self.check_everything = Button(tab4, text='Check Everything', command=self.select_all, bg='#FAFBFC')
-        self.check_everything.grid(row=8, column=0, sticky='W')
-        
-        self.drop_one_event_bool = BooleanVar()
-        self.drop_one_event_bool.set(False)
-        self.drop_one_event_check = Checkbutton(tab4, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
-        self.drop_one_event_check.grid(row=9, column=0, sticky='W')
-        
-        self.drop_beads_bool = BooleanVar()
-        self.drop_beads_bool.set(False)
-        self.drop_beads_bool_check = Checkbutton(tab4, text='Remove Beads', variable=self.drop_beads_bool, bg='#FAFBFC')
-        self.drop_beads_bool_check.grid(row=9, column=1, sticky='W')        
-        
+        self.check_everything.grid(row=10, column=0, sticky='W')
+   
 
-
-
-        
+   
     def load_molecule_data(self):
         """
         Load PALMTracer files (ending with locPALMTracer.txt), PoCA files (cleaned PT and csv files)
@@ -299,3 +298,12 @@ class MyWindow:
             self.use_boxplot = True
         else:
             self.use_boxplot = False
+
+
+
+    def do_photophysics_analysis_super_supra(self):
+        self.select_stats_method_visu()
+        do_photophysics_number_super_supra_clusters(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.csv_sigma_files, 
+                                            self.exp_name.get(), self.isPT_bool.get(), use_one_event=self.drop_one_event_bool.get(),
+                                            boxplot=self.use_boxplot)
+        print("Cluster Photophysics Plotting Done!")
