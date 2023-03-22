@@ -1,6 +1,6 @@
 import math
 
-def localization_precision(photon, sigma, a=160):
+def localization_precision(photon, sigma, a=160, median=0):
     """Implementation of Localization Precision (nm)
 
     Args:
@@ -9,4 +9,7 @@ def localization_precision(photon, sigma, a=160):
         a: pixel size (nm)
     """
     sigma *= a
-    return sigma/math.sqrt(photon)
+    try:
+        return sigma/math.sqrt(photon)
+    except ZeroDivisionError:
+        return sigma/math.sqrt(median)

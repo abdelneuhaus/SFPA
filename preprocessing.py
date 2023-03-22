@@ -30,7 +30,7 @@ def pre_process_single_intensity(file, on_filter=False, beads=False):
             if len(line) < 4000*0.6: 
                 tmp.append(line)
         else:
-            tmp.append(line)            
+            tmp.append(line)
     return [j for i in tmp for j in i]
 
 

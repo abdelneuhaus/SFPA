@@ -156,56 +156,54 @@ class MyWindow:
         
         
         # ------- SUPERBLINKERS ET SUPRABLINKERS TAB -------
-        self.run_exp_bool = BooleanVar()
-        self.run_exp_bool.set(False)
-        self.run_exp = Button(tab4, text='Get Cumulative Number of Clusters', command=self.do_run_cum_num_clus)
-        self.run_exp.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
-
-        self.run_exp_bool = BooleanVar()
-        self.run_exp_bool.set(False)
-        self.run_exp = Button(tab4, text='Get Photophysics Plots', command=self.do_photophysics_analysis_super_supra)
-        self.run_exp.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
-    
-        self.get_experiment_heatmap_bool = BooleanVar()
-        self.get_experiment_heatmap_bool.set(False)
-        self.get_experiment_heatmap = Button(tab4, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
-        self.get_experiment_heatmap.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
-
-        self.get_one_heatmap_bool = BooleanVar()
-        self.get_one_heatmap_bool.set(False)
-        self.get_one_heatmap = Button(tab4, text='Get Photophysics Parameter Heatmap', command=self.do_one_heatmap)
-        self.get_one_heatmap.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        # HERE: CHECKBOX SUPER OR SUPRA BLINKERS
         
-        self.index_we_want = []
-        self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
+        
+        self.run_exp_super_bool = BooleanVar()
+        self.run_exp_super_bool.set(False)
+        self.run_exp_super = Button(tab4, text='Get Photophysics Plots', command=self.do_photophysics_analysis_super_supra)
+        self.run_exp_super.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+    
+        self.get_experiment_heatmap_super_bool = BooleanVar()
+        self.get_experiment_heatmap_super_bool.set(False)
+        self.get_experiment_heatmap_super = Button(tab4, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
+        self.get_experiment_heatmap_super.grid(row=2, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.get_one_heatmap_super_bool = BooleanVar()
+        self.get_one_heatmap_super_bool.set(False)
+        self.get_one_heatmap_super = Button(tab4, text='Get Photophysics Parameter Heatmap', command=self.do_one_heatmap)
+        self.get_one_heatmap_super.grid(row=3, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        
+        self.index_we_want_super = []
+        self.phot_parameters_super = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
                                 'blinks', 'intensity', '# seq ON', '# seq OFF', 'Loc_Precision']
 
-        self.options = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
+        self.options_super = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
                 "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time", "Loc. Precision"]
 
-        self.checkbox_vars = []
+        self.checkbox_vars_super = []
         self.checkboxs = list()
         for i in range(0,4):
             var = IntVar()
-            self.checkbox_vars.append(var)
-            checkbox = Checkbutton(tab4, text=self.options[i], variable=var, bg='#FAFBFC')
+            self.checkbox_vars_super.append(var)
+            checkbox = Checkbutton(tab4, text=self.options_super[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i+4, column=0, sticky='W')
             self.checkboxs.append(checkbox)
         for i in range(4,8):
             var = IntVar()
-            self.checkbox_vars.append(var)
-            checkbox = Checkbutton(tab4, text=self.options[i], variable=var, bg='#FAFBFC')
+            self.checkbox_vars_super.append(var)
+            checkbox = Checkbutton(tab4, text=self.options_super[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i, column=1, sticky='W')
             self.checkboxs.append(checkbox)
         # Loc precision
         var = IntVar()
-        self.checkbox_vars.append(var)
+        self.checkbox_vars_super.append(var)
         checkbox = Checkbutton(tab4, text=self.options[8], variable=var, bg='#FAFBFC')
         checkbox.grid(row=9, column=0, sticky='W')
         self.checkboxs.append(checkbox)
         
-        self.check_everything = Button(tab4, text='Check Everything', command=self.select_all, bg='#FAFBFC')
-        self.check_everything.grid(row=10, column=0, sticky='W')
+        self.check_everything_super = Button(tab4, text='Check Everything', command=self.select_all, bg='#FAFBFC')
+        self.check_everything_super.grid(row=10, column=0, sticky='W')
    
 
    

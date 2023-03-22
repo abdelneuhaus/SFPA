@@ -7,7 +7,6 @@ import os
 import statistics
 import numpy as np
 
-
 def photon_calculation(liste):
     exp_liste = []
     for valeur in liste:
@@ -16,8 +15,9 @@ def photon_calculation(liste):
 
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
+    median = statistics.median(sigma)
     for i in range(len(sigma)):
-        otp.append(localization_precision(photon_loc[i], sigma[i]))
+        otp.append(localization_precision(photon_loc[i], sigma[i], median=median))
     return otp    
 
 # Define helper function
@@ -60,7 +60,7 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
                                         on_times=True, off_times=True, total_on=True, num_blinks=True,
                                         phot_per_loc=True, phot_per_cluster=True, num_on_times=True, 
                                         num_off_times=True, sigma=True, drop_one_event=False, boxplot=True,
-                                        drop_beads=False, use_one_event=False, use_super_blinkers=False):
+                                        drop_beads=False):
     tmp_pho_loc = list()
     cpt = 0
     for j in range(len(list_of_frame_csv)):
@@ -84,13 +84,6 @@ def do_photophysics_parameters_plotting(list_of_poca_files, list_of_frame_csv, l
         # No beads
         if drop_beads == True:
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.5]
-        # Get one-event cluster        
-        if use_one_event == True:
-            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] == 1]
-        # Get "long-blinkers"
-        if use_super_blinkers == True:
-            # on doit filtrer sur le #blinks + total ON
-            raw_file_poca = raw_file_poca[raw_file_poca['blinks'] > 15]
 
 
         # = bleachtime or total ON in frame number
