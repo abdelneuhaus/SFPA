@@ -21,6 +21,8 @@ def get_length_off(random_list):
         if sorted_lst[i] - sorted_lst[i-1] > 1:
             count = sorted_lst[i] - sorted_lst[i-1] - 1
             retlist.append(count)
+    if len(sorted_lst) == 1:
+        retlist.append(0)
     return retlist
 
 # def get_length_off(random_list, valeur=4000):

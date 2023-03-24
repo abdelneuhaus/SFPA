@@ -1,5 +1,5 @@
 from utils import read_poca_files
-from preprocessing import get_length_off, get_length_on, pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_single_intensity, lire_csv
+from preprocessing import pre_process_sigma, get_length_off, get_length_on, pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_single_intensity, lire_csv
 from localization_precision import localization_precision
 
 import matplotlib.pyplot as plt
@@ -39,11 +39,13 @@ def photon_calculation(liste):
         exp_liste.append(valeur*0.04/0.95)
     return exp_liste
 
+
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
+    median = statistics.median(sigma)
     for i in range(len(sigma)):
-        otp.append(localization_precision(photon_loc[i], sigma[i]))
-    return otp    
+        otp.append(localization_precision(photon_loc[i], sigma[i], median=median))
+    return otp  
 
 
 def crop_x(x_vals, y_vals, x_min, x_max):
@@ -56,7 +58,7 @@ def crop_x(x_vals, y_vals, x_min, x_max):
 
 
 def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, 
-                                        exp=None, isPT=True, boxplot=True, use_one_event=False, use_super_blinkers=True):
+                                        exp=None, isPT=True, boxplot=True, use_one_event=False, use_super_blinkers=False):
     tmp_pho_loc = list()
     cpt = 0
     for j in range(len(list_of_frame_csv)):
@@ -66,11 +68,14 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
         # Get one-event cluster        
         if use_one_event == True:
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] == 1]
-            _on_times = pre_process_on_frame_csv(list_of_frame_csv[j], on_filter=use_one_event, beads=True)
-            _off_times = pre_process_off_frame_csv(list_of_frame_csv[j], on_filter=use_one_event, beads=True)
-            _phot_per_loc = photon_calculation(pre_process_single_intensity(list_of_int_csv[j], on_filter=use_one_event, beads=True))
-            tmp_pho_loc.append(photon_calculation(pre_process_single_intensity(list_of_int_csv[j], on_filter=use_one_event, beads=True)))
-        
+            _on_times = pre_process_on_frame_csv(list_of_frame_csv[j], get_sm_only=use_one_event, beads=False)
+            _off_times = pre_process_off_frame_csv(list_of_frame_csv[j], get_sm_only=use_one_event, beads=False)
+            # print(_off_times)
+            _phot_per_loc = photon_calculation(pre_process_single_intensity(list_of_int_csv[j], get_sm_only=use_one_event, beads=False))
+            tmp_pho_loc.append(photon_calculation(pre_process_single_intensity(list_of_int_csv[j], get_sm_only=use_one_event, beads=False)))
+            _sigma = loc_prec_calculation(pre_process_sigma(list_of_sigma_csv[j], get_sm_only=use_one_event), tmp_pho_loc[cpt])
+            cpt += 1
+            
         # Get "long-blinkers"
         if use_super_blinkers == True:
             _on_times, _off_times, _tmp_phot_per_loc, _sigma = list(), list(), list(), list()
@@ -90,7 +95,7 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
             _phot_per_loc = [photon_calculation(i) for i in _tmp_phot_per_loc]
             _sigma = [loc_prec_calculation(_sigma[i], _tmp_phot_per_loc[i]) for i in range(len(_sigma))]
             _on_times = [j for i in _on_times for j in i]
-            _off_times = [j for i in _off_times for j in i]            
+            _off_times = [j for i in _off_times for j in i]
             _phot_per_loc = [j for i in _phot_per_loc for j in i]
             _sigma = [j for i in _sigma for j in i]
             
@@ -105,7 +110,7 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
         _phot_per_cluster = photon_calculation(raw_file_poca.loc[:, 'intensity'].values.tolist())
         _num_on_times = raw_file_poca.loc[:, '# seq ON'].values.tolist()
         _num_off_times = raw_file_poca.loc[:, '# seq OFF'].values.tolist()
-    
+        # print(_off_times)
         non_none_elements = [_on_times, _off_times, _total_on, _num_blinks, _phot_per_loc, _phot_per_cluster, _num_on_times, _num_off_times, _sigma]
         non_none_elements = [elem for elem in non_none_elements]
         label = ['ON times', "OFF times", "Total ON (Bleachtime)", "#Blinks", "Photon/loc", "Photon/cluster", "#ON times", "#OFF times", "Loc. Precision"]

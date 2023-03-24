@@ -62,21 +62,21 @@ class MyWindow:
         # Select statistic to use for heatmaps
         self.stats_choice = Label(tab1, text = "Statistical value used for heatmaps", bg='#FAFBFC')
         self.stats_choice.grid(row=3, column=0, sticky="W", pady=3, ipadx=1, padx=5)
-        self.list_stats_choice = ["Mean", "Median"]
+        self.list_stats_choice = ["Median", "Mean"]
         self.widget_stats_choice = ttk.Combobox(tab1, values=self.list_stats_choice, state="readonly")
         self.widget_stats_choice.grid(row=4, column=0, sticky="W", pady=3, ipadx=1, padx=5)
         self.widget_stats_choice.current(0)
-        self.choice_stats = 'Mean'
-        self.method_choice_stats = statistics.mean
+        self.choice_stats = 'median'
+        self.method_choice_stats = statistics.median
         
         # Select if we want boxplot or histogram
         self.hist_box = Label(tab1, text = "Distribution Representation", bg='#FAFBFC')
         self.hist_box.grid(row=5, column=0, sticky="W", pady=3, ipadx=1, padx=5)
-        self.list_hist_box = ["boxplot", "density histogram"]
+        self.list_hist_box = ["density histogram", "boxplot"]
         self.widget_hist_box = ttk.Combobox(tab1, values=self.list_hist_box, state="readonly")
         self.widget_hist_box.grid(row=6, column=0, sticky="W", pady=3, ipadx=1, padx=5)
         self.widget_hist_box.current(0)
-        self.hist_box_choice = 'boxplot'
+        self.hist_box_choice = 'density histogram'
         self.use_boxplot = True
 
                 
@@ -156,12 +156,15 @@ class MyWindow:
         
         
         # ------- SUPERBLINKERS ET SUPRABLINKERS TAB -------
-        # HERE: CHECKBOX SUPER OR SUPRA BLINKERS
-        
-        
+        self.var = StringVar()
+        self.superblinkers = Radiobutton(tab4, text='Superblinkers', variable=self.var, value='1', bg='#FAFBFC')
+        self.superblinkers.grid(row=0, column=0, sticky='W', padx=10, pady=3)
+        self.sm_cluster = Radiobutton(tab4, text='Single Molecule Cluster', variable=self.var, value='2', bg='#FAFBFC')
+        self.sm_cluster.grid(row=0, column=1, sticky='W', padx=10, pady=3)
+                
         self.run_exp_super_bool = BooleanVar()
         self.run_exp_super_bool.set(False)
-        self.run_exp_super = Button(tab4, text='Get Photophysics Plots', command=self.do_photophysics_analysis_super_supra)
+        self.run_exp_super = Button(tab4, text='Get Specific Photophysics Plots', command=self.do_photophysics_analysis_super_supra)
         self.run_exp_super.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
     
         self.get_experiment_heatmap_super_bool = BooleanVar()
@@ -301,7 +304,17 @@ class MyWindow:
 
     def do_photophysics_analysis_super_supra(self):
         self.select_stats_method_visu()
+        method = self.var.get()
+        if method == str(1):
+            one_event = False
+            superblinkers = True
+        elif method == str(2):
+            one_event = True
+            superblinkers = False
         do_photophysics_number_super_supra_clusters(self.poca_files, self.csv_frame_files, self.csv_intensity_files, self.csv_sigma_files, 
-                                            self.exp_name.get(), self.isPT_bool.get(), use_one_event=self.drop_one_event_bool.get(),
-                                            boxplot=self.use_boxplot)
-        print("Cluster Photophysics Plotting Done!")
+                                            self.exp_name.get(), self.isPT_bool.get(),boxplot=self.use_boxplot, use_one_event=one_event, 
+                                            use_super_blinkers=superblinkers)
+        if one_event == True:
+            print("Single Molecule Cluster Photophysics Plotting Done!")
+        else:
+            print("SupraBlinkers Photophysics Plotting Done!")

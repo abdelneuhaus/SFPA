@@ -14,7 +14,7 @@ def lire_csv(nom_fichier):
     return lignes
 
 
-def pre_process_single_intensity(file, on_filter=False, beads=False):
+def pre_process_single_intensity(file, on_filter=False, beads=False, get_sm_only=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
@@ -25,7 +25,11 @@ def pre_process_single_intensity(file, on_filter=False, beads=False):
             else:
                 if len(line) != 1:
                     tmp.append(line)
-
+                    
+        if get_sm_only == True:
+            if len(line) == 1:
+                tmp.append(line) 
+                
         if on_filter==False and beads==True:
             if len(line) < 4000*0.6: 
                 tmp.append(line)
@@ -34,7 +38,7 @@ def pre_process_single_intensity(file, on_filter=False, beads=False):
     return [j for i in tmp for j in i]
 
 
-def pre_process_on_frame_csv(file, on_filter=False, beads=False):
+def pre_process_on_frame_csv(file, on_filter=False, beads=False, get_sm_only=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
@@ -45,16 +49,18 @@ def pre_process_on_frame_csv(file, on_filter=False, beads=False):
             else:
                 if len(line) != 1:
                     tmp.append(get_length_on(line))
-
         if on_filter==False and beads==True:
             if len(line) < 4000*0.6: 
-                tmp.append(get_length_on(line))
+                tmp.append(get_length_on(line))        
+        if get_sm_only == True:
+            if len(line) == 1:
+                tmp.append(get_length_on(line))                
         else:
             tmp.append(get_length_on(line))           
     return [j for i in tmp for j in i]
 
 
-def pre_process_off_frame_csv(file, on_filter=False, beads=False):
+def pre_process_off_frame_csv(file, on_filter=False, beads=False, get_sm_only=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
@@ -69,12 +75,16 @@ def pre_process_off_frame_csv(file, on_filter=False, beads=False):
         if on_filter==False and beads==True:
             if len(line) < 4000*0.6: 
                 tmp.append(get_length_off(line))
+                
+        if get_sm_only == True:
+            if len(line) == 1:
+                tmp.append(get_length_off(line))
         else:
-            tmp.append(get_length_off(line))      
+            tmp.append(get_length_off(line)) 
     return [j for i in tmp for j in i]
 
 
-def pre_process_sigma(file, on_filter=False, beads=False):
+def pre_process_sigma(file, on_filter=False, beads=False, get_sm_only=False):
     tmp = list()
     file = lire_csv(file)
     for line in file:
@@ -89,6 +99,11 @@ def pre_process_sigma(file, on_filter=False, beads=False):
         if on_filter==False and beads==True:
             if len(line) < 4000*0.6: 
                 tmp.append(line)
+                
+        if get_sm_only == True:
+            if len(line) == 1:
+                tmp.append(line)
+
         else:
             tmp.append(line)
     return [j for i in tmp for j in i]
