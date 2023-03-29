@@ -37,10 +37,12 @@ def photon_calculation(liste, sigma=1):
         exp_liste.append(valeur*0.04/0.95)
     return exp_liste
 
+
 def loc_prec_calculation(sigma, photon_loc):
     otp = []
+    median = statistics.median(sigma)
     for i in range(len(sigma)):
-        otp.append(localization_precision(photon_loc[i], sigma[i]))
+        otp.append(localization_precision(photon_loc[i], sigma[i], median=median))
     return otp  
 
 
