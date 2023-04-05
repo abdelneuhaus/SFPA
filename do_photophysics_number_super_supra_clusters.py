@@ -33,10 +33,11 @@ def get_num_fov_idx_results_dir(i, exp, PT_561, PT_405):
     return results_dir, title_plot
 
 
-def photon_calculation(liste):
+def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
     exp_liste = []
+    otp = gain/emgain
     for valeur in liste:
-        exp_liste.append(valeur*0.04/0.95)
+        exp_liste.append(valeur*otp/qe)
     return exp_liste
 
 
@@ -70,7 +71,6 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] == 1]
             _on_times = pre_process_on_frame_csv(list_of_frame_csv[j], get_sm_only=use_one_event, beads=False)
             _off_times = pre_process_off_frame_csv(list_of_frame_csv[j], get_sm_only=use_one_event, beads=False)
-            # print(_off_times)
             _phot_per_loc = photon_calculation(pre_process_single_intensity(list_of_int_csv[j], get_sm_only=use_one_event, beads=False))
             tmp_pho_loc.append(photon_calculation(pre_process_single_intensity(list_of_int_csv[j], get_sm_only=use_one_event, beads=False)))
             _sigma = loc_prec_calculation(pre_process_sigma(list_of_sigma_csv[j], get_sm_only=use_one_event), tmp_pho_loc[cpt])

@@ -185,27 +185,27 @@ class MyWindow:
                 "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time", "Loc. Precision"]
 
         self.checkbox_vars_super = []
-        self.checkboxs = list()
+        self.checkboxs_super = list()
         for i in range(0,4):
             var = IntVar()
             self.checkbox_vars_super.append(var)
             checkbox = Checkbutton(tab4, text=self.options_super[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i+4, column=0, sticky='W')
-            self.checkboxs.append(checkbox)
+            self.checkboxs_super.append(checkbox)
         for i in range(4,8):
             var = IntVar()
             self.checkbox_vars_super.append(var)
             checkbox = Checkbutton(tab4, text=self.options_super[i], variable=var, bg='#FAFBFC')
             checkbox.grid(row=i, column=1, sticky='W')
-            self.checkboxs.append(checkbox)
+            self.checkboxs_super.append(checkbox)
         # Loc precision
         var = IntVar()
         self.checkbox_vars_super.append(var)
         checkbox = Checkbutton(tab4, text=self.options[8], variable=var, bg='#FAFBFC')
         checkbox.grid(row=9, column=0, sticky='W')
-        self.checkboxs.append(checkbox)
+        self.checkboxs_super.append(checkbox)
         
-        self.check_everything_super = Button(tab4, text='Check Everything', command=self.select_all, bg='#FAFBFC')
+        self.check_everything_super = Button(tab4, text='Check Everything', command=self.select_all_super, bg='#FAFBFC')
         self.check_everything_super.grid(row=10, column=0, sticky='W')
    
 
@@ -283,7 +283,10 @@ class MyWindow:
         for i in self.checkboxs:
             i.invoke()
 
-            
+    def select_all_super(self):
+        for i in self.checkboxs_super:
+            i.invoke()
+                    
     def select_stats_method_heatmap(self):
         # Obtenir l'élément sélectionné
         self.choice_stats = self.widget_stats_choice.get()
@@ -317,4 +320,4 @@ class MyWindow:
         if one_event == True:
             print("Single Molecule Cluster Photophysics Plotting Done!")
         else:
-            print("SupraBlinkers Photophysics Plotting Done!")
+            print("Superblinkers Photophysics Plotting Done!")
