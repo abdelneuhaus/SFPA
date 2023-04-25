@@ -7,10 +7,9 @@ import seaborn as sns
 import numpy as np
 import statistics
 import matplotlib.pyplot as plt
-
-import numpy as np 
+import numpy as np
+ 
 from pandas import DataFrame
-import seaborn as sns
 
 
 def pad_list(lst):
@@ -31,10 +30,11 @@ def fusion_position(liste1, liste2):
         resultat.append(liste1[i] + ': ' + liste2[i])
     return resultat
 
-def photon_calculation(liste, sigma=1):
+def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
     exp_liste = []
+    otp = gain/emgain
     for valeur in liste:
-        exp_liste.append(valeur*0.04/0.95)
+        exp_liste.append(valeur*otp/qe)
     return exp_liste
 
 
