@@ -15,7 +15,7 @@ def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
     exp_liste = []
     otp = gain/emgain
     for valeur in liste:
-        exp_liste.append(valeur*otp/qe)
+        exp_liste.append(valeur*(otp/qe))
     return exp_liste
 
 
@@ -46,16 +46,15 @@ def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_cs
         well_data['_off_times'] = int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event)))
         tmp = photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))
         tmp_pho_loc.append(tmp)
-        well_data['_phot_per_loc'] = int(stats(photon_calculation(tmp)))
+        well_data['_phot_per_loc'] = float(stats(photon_calculation(tmp)))
         well_data['_total_on'] = int(stats(raw_file_poca.loc[:, 'total ON'].values.tolist()))
         well_data['_num_blinks'] = int(stats(raw_file_poca.loc[:, 'blinks'].values.tolist()))
-        well_data['_phot_per_cluster'] = int(stats(photon_calculation(raw_file_poca.loc[:, 'intensity'].values.tolist())))
+        well_data['_phot_per_cluster'] = float(stats(photon_calculation(raw_file_poca.loc[:, 'intensity'].values.tolist())))
         well_data['_num_on_times'] = int(stats(raw_file_poca.loc[:, '# seq ON'].values.tolist()))
         well_data['_num_off_times'] = int(stats(raw_file_poca.loc[:, '# seq OFF'].values.tolist()))
         well_data['_sigma'] = float(stats(loc_prec_calculation(pre_process_sigma(list_of_sigma_csv[f], on_filter=drop_one_event), tmp_pho_loc[cpt])))
         cpt += 1
         heatmap_data.append(well_data)
-
 
     # Convert dict to pd.dataframe
     data = []

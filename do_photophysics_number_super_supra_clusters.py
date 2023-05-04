@@ -65,7 +65,6 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
     for j in range(len(list_of_frame_csv)):
         raw_file_poca = read_poca_files(list_of_poca_files[j])
         
-        # Condition to analyze
         # Get one-event cluster        
         if use_one_event == True:
             raw_file_poca = raw_file_poca[raw_file_poca['total ON'] == 1]
@@ -85,7 +84,7 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
             sigma_file = lire_csv(list_of_sigma_csv[j])
             
             for i in range(len(raw_file_poca)):
-                if raw_file_poca['blinks'][i] > 15 and raw_file_poca['total ON'][i] < 2000:
+                if raw_file_poca['blinks'][i] > 15 and raw_file_poca['total ON'][i] > 1000:
                     if statistics.median(get_length_on(on_time_file[i])) > 3:
                         _on_times.append(get_length_on(on_time_file[i])) 
                         _off_times.append(get_length_off(off_time_file[i]))
@@ -122,7 +121,7 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
             col = m % 4
             ax = axes[row][col]
             try:
-                ax.set_title(label[m]+', median:'+ str(round(float(statistics.median((df))) ,3)))
+                ax.set_title(label[m]+', median:'+ str(round(float(statistics.median((df))), 3)))
             except statistics.StatisticsError:
                 ax.set_title(label[m]+', median: 0')
             

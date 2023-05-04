@@ -7,10 +7,11 @@ import os
 import statistics
 import numpy as np
 
-def photon_calculation(liste):
+def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
     exp_liste = []
+    otp = gain/emgain
     for valeur in liste:
-        exp_liste.append(valeur*0.04/0.95)
+        exp_liste.append(valeur*otp/qe)
     return exp_liste
 
 def loc_prec_calculation(sigma, photon_loc):

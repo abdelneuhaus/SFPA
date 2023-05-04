@@ -26,7 +26,7 @@ def fusion(liste1, liste2):
 
 def fusion_position(liste1, liste2):
     resultat = []
-    for i in range(len(liste1)):
+    for i in range(len(liste2)):
         resultat.append(liste1[i] + ': ' + liste2[i])
     return resultat
 
@@ -104,9 +104,10 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
             legend = list()
             for d in list_of_poca_files:
                 legend.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
-            heatmap_data = pad_list(heatmap_data)
+            # heatmap_data = pad_list(heatmap_data)
 
         # Rotation of the 8x1 data to 2x4 and plot it on the heatmap
+        heatmap_data = pad_list(heatmap_data)
         df = DataFrame(np.array(heatmap_data).reshape(2,4), index=cols, columns=idx)
         sns.heatmap(df, annot=True, fmt='g')
         plt.yticks(rotation=0)

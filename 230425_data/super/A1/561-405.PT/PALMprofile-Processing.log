@@ -56,12 +56,12 @@
 [XC_Txt] 128
 [YC_Txt] 128
 [AngleC_Txt] 0
-[RegistrationDynamic_Chk] 0
+[RegistrationDynamic_Chk] 1
 [RegistrationAuto_Chk] 0
 [AutoRegistrationRadius_Txt] 2
 [GPU_Chk] 1
 [WaveletWatershed_Chk] 1
-[WaveletThresh_Txt] 225.0
+[WaveletThresh_Txt] 200.0
 [GaussFitParam_List] X Y sigma
 [ROISize_Txt] 7
 [GaussFitSigma_Txt] 1.0
@@ -218,5 +218,5 @@
 [RMSSigmaMax_Txt] 
 [Secondary_SSTab] 
 [Tab]  3
-[MainWindow.Left]  1236
+[MainWindow.Left]  1242
 [MainWindow.Top]  0
