@@ -84,7 +84,7 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
             sigma_file = lire_csv(list_of_sigma_csv[j])
             
             for i in range(len(raw_file_poca)):
-                if raw_file_poca['blinks'][i] > 15 and raw_file_poca['total ON'][i] > 1000:
+                if raw_file_poca['blinks'][i] > 25:# and raw_file_poca['total ON'][i] > 1000:
                     if statistics.median(get_length_on(on_time_file[i])) > 3:
                         _on_times.append(get_length_on(on_time_file[i])) 
                         _off_times.append(get_length_off(off_time_file[i]))
@@ -99,8 +99,8 @@ def do_photophysics_number_super_supra_clusters(list_of_poca_files, list_of_fram
             _sigma = [j for i in _sigma for j in i]
             
             init = len(raw_file_poca)
-            raw_file_poca = raw_file_poca[raw_file_poca['blinks'] > 15]
-            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < 2000]
+            raw_file_poca = raw_file_poca[raw_file_poca['blinks'] > 25]
+            # raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < 2000]
             post = len(raw_file_poca)
             print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%, which is', post, 'clusters over', init)
             

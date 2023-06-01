@@ -70,7 +70,7 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         # Case where index is 'intensity per loc'
         elif i == csv_int_label:
             for f in range(len(list_of_int_csv)):
-                heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event)))))
+                heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event, beads=drop_beads)))))
          
         # Case where we compute localization precision       
         elif i == csv_sigma_label:
