@@ -12,6 +12,7 @@ from do_photophysics_parameters_plotting import do_photophysics_parameters_plott
 from do_heatmap_photophysics_parameters import do_heatmap_photophysics_parameters
 from do_heatmap_one_photophysics_parameter import do_heatmap_one_photophysics_parameter
 from do_photophysics_number_super_supra_clusters import do_photophysics_number_super_supra_clusters
+from do_96heatmap_one_photophysics_parameter import do_96heatmap_one_photophysics_parameter
 
 import os
 import statistics
@@ -31,12 +32,15 @@ class MyWindow:
         window.add(tab2, text ='Single Well Analysis')
         # Tab 3 : PoCA output
         tab3 = ttk.Frame(window)
-        window.add(tab3, text ='Well Plate Analysis')
+        window.add(tab3, text ='8-Well Plate Analysis')
         # Tab 4 : Super/Supra-Blinkers
         tab4 = ttk.Frame(window)
-        window.add(tab4, text ='Super/Supra-Blinkers')
+        window.add(tab4, text ='NOT WORKING(SuperBlinkers)')
         window.pack(expand = 1, fill ="both")
-
+        # Tab 4 : Super/Supra-Blinkers
+        tab5 = ttk.Frame(window)
+        window.add(tab5, text ='96-Well Plate Analysis')
+        window.pack(expand = 1, fill ="both")
 
         # ------- INFORMATIONS TAB -------
         self.load_data_bool = BooleanVar()
@@ -209,6 +213,61 @@ class MyWindow:
         self.check_everything_super.grid(row=10, column=0, sticky='W')
    
 
+
+        # ------- 96-WELL PLATE ANALYSIS TAB -------
+        self.get_experiment_96heatmap_bool = BooleanVar()
+        self.get_experiment_96heatmap_bool.set(False)
+        self.get_experiment_96heatmap = Button(tab5, text='Get Experiment Heatmap', command=self.do_heatmap_whole_exp)
+        self.get_experiment_96heatmap.grid(row=0, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.get_one_96heatmap_bool = BooleanVar()
+        self.get_one_96heatmap_bool.set(False)
+        self.get_one_96heatmap = Button(tab5, text='Get Photophysics Parameter Heatmap', command=self.do_one_96heatmap)
+        self.get_one_96heatmap.grid(row=1, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+        
+        self.index_we_want = []
+        self.phot_parameters = ['ON times', 'OFF times', "Intensity_loc", 'total ON',
+                                'blinks', 'intensity', '# seq ON', '# seq OFF', 'Loc_Precision']
+
+        self.options = ["Length ON times", "Length OFF times", "Intensity per Loc.", "Total ON time",
+                "Num. Blinks", "Intensity per Clus.", "Num. ON time", "Num. OFF time", "Loc. Precision"]
+
+        self.checkbox_vars96 = []
+        self.checkboxs96 = list()
+        for i in range(0,4):
+            var = IntVar()
+            self.checkbox_vars96.append(var)
+            checkbox = Checkbutton(tab5, text=self.options[i], variable=var, bg='#FAFBFC')
+            checkbox.grid(row=i+2, column=0, sticky='W')
+            self.checkboxs96.append(checkbox)
+        for i in range(4,8):
+            var = IntVar()
+            self.checkbox_vars96.append(var)
+            checkbox = Checkbutton(tab5, text=self.options[i], variable=var, bg='#FAFBFC')
+            checkbox.grid(row=i-2, column=1, sticky='W')
+            self.checkboxs96.append(checkbox)
+        # Loc precision
+        var = IntVar()
+        self.checkbox_vars96.append(var)
+        checkbox = Checkbutton(tab5, text=self.options[8], variable=var, bg='#FAFBFC')
+        checkbox.grid(row=7, column=0, sticky='W')
+        self.checkboxs96.append(checkbox)
+        
+        self.check_everything96 = Button(tab5, text='Check Everything', command=self.select_all96, bg='#FAFBFC')
+        self.check_everything96.grid(row=8, column=0, sticky='W')
+        
+        self.drop_one_event_bool = BooleanVar()
+        self.drop_one_event_bool.set(False)
+        self.drop_one_event_check = Checkbutton(tab5, text='Drop Single Event', variable=self.drop_one_event_bool, bg='#FAFBFC')
+        self.drop_one_event_check.grid(row=9, column=0, sticky='W')
+        
+        self.drop_beads_bool = BooleanVar()
+        self.drop_beads_bool.set(False)
+        self.drop_beads_bool_check = Checkbutton(tab5, text='Remove Beads', variable=self.drop_beads_bool, bg='#FAFBFC')
+        self.drop_beads_bool_check.grid(row=9, column=1, sticky='W')
+
+
+
    
     def load_molecule_data(self):
         """
@@ -271,8 +330,17 @@ class MyWindow:
         self.select_stats_method_heatmap()
         self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars) if var.get()]
         self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
-        # print(self.index_we_want)
         do_heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
+                                              self.csv_intensity_files, self.csv_sigma_files,self.isPT_bool.get(), 
+                                              stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get(),
+                                              drop_beads=self.drop_beads_bool.get())
+        print("Heatmap(s) for Selected Parameters Done!")
+        
+    def do_one_96heatmap(self):
+        self.select_stats_method_heatmap()
+        self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars96) if var.get()]
+        self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
+        do_96heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
                                               self.csv_intensity_files, self.csv_sigma_files,self.isPT_bool.get(), 
                                               stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get(),
                                               drop_beads=self.drop_beads_bool.get())
@@ -280,6 +348,10 @@ class MyWindow:
 
 
     def select_all(self):
+        for i in self.checkboxs:
+            i.invoke()
+            
+    def select_all96(self):
         for i in self.checkboxs:
             i.invoke()
 

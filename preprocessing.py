@@ -2,7 +2,6 @@ import csv
 import os
 from get_length_on_off import get_length_off, get_length_on
 
-
 def lire_csv(nom_fichier):
     lignes = []
     with open(nom_fichier, 'r') as f:
@@ -12,7 +11,6 @@ def lire_csv(nom_fichier):
             ligne = [float(element) for element in ligne]
             lignes.append(ligne[1:])
     return lignes
-
 
 def pre_process_single_intensity(file, on_filter=False, beads=False, get_sm_only=False):
     tmp = list()

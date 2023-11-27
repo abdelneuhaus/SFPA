@@ -3,7 +3,12 @@ import pandas as pd
 
 
 def read_locPALMTracer_file(file):
-    return pd.read_csv(file, sep='\t', skiprows=2)
+    data=pd.read_csv(file, sep='\t', skiprows=2)
+    data['id'] = [int(i) for i in data['id']]
+    data['Plane'] = [int(i) for i in data['Plane']]
+    data['Index'] = [int(i) for i in data['Index']]
+    return data
+    
 
 def read_poca_files(file):
     df = pd.read_csv(file)

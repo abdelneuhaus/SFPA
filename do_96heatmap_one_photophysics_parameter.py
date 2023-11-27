@@ -8,14 +8,16 @@ import numpy as np
 import statistics
 import matplotlib.pyplot as plt
 import numpy as np
- 
-from pandas import DataFrame
+import re
 
+from pandas import DataFrame
+from collections import defaultdict
 
 def pad_list(lst):
     while len(lst) < 8:
         lst.append(float('nan'))
     return lst
+
 
 def fusion(liste1, liste2):
     fusions = []
@@ -46,22 +48,51 @@ def loc_prec_calculation(sigma, photon_loc):
     return otp  
 
 
-def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
+def creer_matrice_et_moyennes(noms_fichiers, valeurs, positions):
+    # Initialiser une matrice avec des valeurs par défaut (par exemple, None)
+    matrice_puits = np.full((len(positions),), float('nan'))
+    valeurs_par_position = defaultdict(list)
+    for nom_fichier, valeur in zip(noms_fichiers, valeurs):
+        match = re.search(r'([A-Z]\d+)', nom_fichier)
+        if match:
+            position = match.group(1)
+            valeurs_par_position[position].append(valeur)
+
+    for i, position in enumerate(positions):
+        if position in valeurs_par_position:
+            moyenne = sum(valeurs_par_position[position]) / len(valeurs_par_position[position])
+            matrice_puits[i] = int(moyenne)
+
+    return matrice_puits
+
+
+# Fonction pour convertir les coordonnées de la plaque (ex: A1) en indices de matrice (ex: (0, 0))
+def convertir_coordonnees(coordonnees):
+    colonne = ord(coordonnees[0]) - ord('A')
+    ligne = int(coordonnees[1:]) - 1
+    return ligne, colonne
+
+
+
+def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
                                           isPT=True, stats=statistics.median, drop_one_event=False, drop_beads=False):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
     csv_sigma_label = "Loc_Precision"
-    idx = ['1', '2', '3', '4']
-    cols = ['A', 'B']
-    all_wells = fusion(cols, idx)
     
+    idx = list(map(str, range(1, 13)))
+    cols = list(map(str, [chr(i) for i in range(ord('A'), ord('H')+1)]))
+    all_wells = fusion(cols, idx)
+
     for i in index:
         heatmap_data = []
+        
         # Case where index is 'ON times' or 'OFF times'
         if i in csv_frame_label:
             if i == 'ON times':
                 for f in range(len(list_of_frame_csv)):
                     heatmap_data.append(int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))))
+                    
             else:
                 for f in range(len(list_of_frame_csv)):
                     heatmap_data.append(int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))))
@@ -92,34 +123,10 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
                 else:
                     heatmap_data.append(int(stats(raw_file_poca.loc[:, i].values.tolist())))
         
-        # We initialize well names
-        well_name = []
-        if isPT == True:
-            for d in range(len(list_of_poca_files)):
-                name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
-                well_name.append(name)
-            legend = fusion_position(all_wells, well_name)
-        else:
-            legend = list()
-            for d in list_of_poca_files:
-                legend.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
-            # heatmap_data = pad_list(heatmap_data)
-
-        # Rotation of the 8x1 data to 2x4 and plot it on the heatmap
-        heatmap_data = pad_list(heatmap_data)
-        df = DataFrame(np.array(heatmap_data).reshape(2,4), index=cols, columns=idx)
+        matrice_resultante = creer_matrice_et_moyennes(list_of_poca_files, heatmap_data, all_wells)
+        df = DataFrame(np.array(matrice_resultante).reshape(8,12), index=cols, columns=idx)
         sns.heatmap(df, annot=True, fmt='g', cmap="YlGnBu")
         plt.yticks(rotation=0)
-
-        # Récupération de la position de l'échelle de couleur
-        colorbar = plt.gcf().axes[-1]
-        colorbar_pos = colorbar.get_position()
-
-        # Ajout de la boîte de texte à droite de l'échelle de couleur
-        plt.text(colorbar_pos.x1 + 0.05, colorbar_pos.y1, "\n".join(legend),
-                transform=plt.gcf().transFigure, fontsize=10,
-                verticalalignment='top', horizontalalignment='left',
-                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
         plt.gcf().set_size_inches((12, 5))
         plt.title(i + ' median')        

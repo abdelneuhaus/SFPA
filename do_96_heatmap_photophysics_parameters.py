@@ -27,11 +27,12 @@ def loc_prec_calculation(sigma, photon_loc):
     return otp  
 
 
-def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, 
+def do_96_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv, 
                                        isPT=True, stats=statistics.median, drop_one_event=False, drop_beads=False):
     heatmap_data = []
     cpt = 0
     tmp_pho_loc = list()
+    print(list_of_poca_files)
     for f in range(len(list_of_poca_files)):
         raw_file_poca = read_poca_files(list_of_poca_files[f])
         if drop_one_event == True:
