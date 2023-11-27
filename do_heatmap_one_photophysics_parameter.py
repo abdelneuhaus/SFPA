@@ -108,7 +108,7 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         # Rotation of the 8x1 data to 2x4 and plot it on the heatmap
         heatmap_data = pad_list(heatmap_data)
         df = DataFrame(np.array(heatmap_data).reshape(2,4), index=cols, columns=idx)
-        sns.heatmap(df, annot=True, fmt='g', cmap="YlGnBu")
+        sns.heatmap(df, annot=True, fmt='g', cmap="YlGnBu", linewidths=1, linecolor='black')
         plt.yticks(rotation=0)
 
         # Récupération de la position de l'échelle de couleur

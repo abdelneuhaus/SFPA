@@ -125,7 +125,7 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
         
         matrice_resultante = creer_matrice_et_moyennes(list_of_poca_files, heatmap_data, all_wells)
         df = DataFrame(np.array(matrice_resultante).reshape(8,12), index=cols, columns=idx)
-        sns.heatmap(df, annot=True, fmt='g', cmap="YlGnBu")
+        sns.heatmap(df, annot=True, fmt='g', cmap="YlGnBu", linewidths=1, linecolor='black')
         plt.yticks(rotation=0)
 
         plt.gcf().set_size_inches((12, 5))
