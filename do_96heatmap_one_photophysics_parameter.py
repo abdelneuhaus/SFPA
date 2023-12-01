@@ -4,13 +4,13 @@ from localization_precision import localization_precision
 
 import os
 import seaborn as sns
+import pandas as pd
 import numpy as np
 import statistics
 import matplotlib.pyplot as plt
 import numpy as np
 import re
 
-from pandas import DataFrame
 from collections import defaultdict
 
 def pad_list(lst):
@@ -86,27 +86,27 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
 
     for i in index:
         heatmap_data = []
-        
+        boxplot_data = []
         # Case where index is 'ON times' or 'OFF times'
         if i in csv_frame_label:
             if i == 'ON times':
                 for f in range(len(list_of_frame_csv)):
                     heatmap_data.append(int(stats(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))))
-                    
+                    boxplot_data.append(pre_process_on_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))
             else:
                 for f in range(len(list_of_frame_csv)):
                     heatmap_data.append(int(stats(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))))
-        
+                    boxplot_data.append(pre_process_off_frame_csv(list_of_frame_csv[f], on_filter=drop_one_event))
         # Case where index is 'intensity per loc'
         elif i == csv_int_label:
             for f in range(len(list_of_int_csv)):
                 heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event, beads=drop_beads)))))
-         
+                boxplot_data.append(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event, beads=drop_beads)))
         # Case where we compute localization precision       
         elif i == csv_sigma_label:
             for f in range(len(list_of_sigma_csv)):
                 heatmap_data.append(float(stats(loc_prec_calculation(pre_process_sigma(list_of_sigma_csv[f], on_filter=drop_one_event), photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))))))
-        
+                boxplot_data.append(loc_prec_calculation(pre_process_sigma(list_of_sigma_csv[f], on_filter=drop_one_event), photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event))))
         # Case where we read from locPALMTracer_cleaned file
         else:
             for f in range(len(list_of_poca_files)):
@@ -120,11 +120,24 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
                     raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
                 if i == 'intensity':
                     heatmap_data.append(int(stats(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))))
+                    boxplot_data.append(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))
                 else:
                     heatmap_data.append(int(stats(raw_file_poca.loc[:, i].values.tolist())))
+                    boxplot_data.append(raw_file_poca.loc[:, i].values.tolist())
+        
+        # We initialize well names
+        well_name = []
+        if isPT == True:
+            for d in range(len(list_of_poca_files)):
+                name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
+                well_name.append(name)
+        else:
+            for d in list_of_poca_files:
+                well_name.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
+        
         
         matrice_resultante = creer_matrice_et_moyennes(list_of_poca_files, heatmap_data, all_wells)
-        df = DataFrame(np.array(matrice_resultante).reshape(8,12), index=cols, columns=idx)
+        df = pd.DataFrame(np.array(matrice_resultante).reshape(8,12), index=cols, columns=idx)
         sns.heatmap(df, annot=True, fmt='g', cmap="YlGnBu", linewidths=1, linecolor='black')
         plt.yticks(rotation=0)
 
@@ -139,4 +152,19 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
         if not os.path.isdir(results_dir):
             os.makedirs(results_dir)
         plt.savefig(results_dir+sample_file)
+        
+        fig, ax = plt.subplots()
+        boxplot = ax.boxplot(boxplot_data, showfliers=False)
+        ax.set_xticklabels(well_name)
+        plt.show()
+        # all_values = np.concatenate([values for values in boxplot_data])
+        # group_labels = np.concatenate([np.full(len(values), i) for i, values in enumerate(boxplot_data)])
+        # f_statistic, p_value = f_oneway(*list(boxplot_data))
+        # print(f'ANOVA p-value: {p_value}')
+        # tukey_results = pairwise_tukeyhsd(all_values, group_labels)
+        # print(tukey_results)
+        
+        plt.close('all')
+
+        
         plt.close('all')
