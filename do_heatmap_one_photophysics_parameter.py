@@ -48,7 +48,8 @@ def loc_prec_calculation(sigma, photon_loc):
 
 
 def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
-                                          isPT=True, stats=statistics.median, drop_one_event=False, drop_beads=False):
+                                          isPT=True, stats=statistics.median, drop_one_event=False, drop_beads=False,
+                                          get_boxplot=False):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
     csv_sigma_label = "Loc_Precision"
@@ -96,6 +97,12 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
                 else:
                     heatmap_data.append(int(stats(raw_file_poca.loc[:, i].values.tolist())))
                     boxplot_data.append(stats(raw_file_poca.loc[:, i].values.tolist()))
+        
+        duty_cycle = []
+        if get_boxplot == True:
+            for f in range(len(list_of_poca_files)):
+                raw_file_poca = read_poca_files(list_of_poca_files[f])
+                duty_cycle.append(np.array(raw_file_poca.loc[:, 'total ON'])/np.array(raw_file_poca.loc[:, 'lifetime']))
         # We initialize well names
         well_name = []
         if isPT == True:
@@ -141,6 +148,13 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         fig, ax = plt.subplots()
         boxplot = ax.boxplot(boxplot_data, showfliers=False)
         ax.set_xticklabels(well_name)
+        plt.show()
+
+        fig, ax = plt.subplots()
+        boxplot = ax.boxplot(duty_cycle, showfliers=False)
+        # ax.set_xticklabels(well_name)
+        plt.title('duty cycle boxplots (no outliers)')        
+        plt.show()
         
         # all_values = np.concatenate([values for values in boxplot_data])
         # group_labels = np.concatenate([np.full(len(values), i) for i, values in enumerate(boxplot_data)])
@@ -149,5 +163,4 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         # tukey_results = pairwise_tukeyhsd(all_values, group_labels)
         # print(tukey_results)
         
-        plt.show()
         plt.close('all')
