@@ -165,6 +165,3 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
         # print(tukey_results)
         
         plt.close('all')
-
-        
-        plt.close('all')
