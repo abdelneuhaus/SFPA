@@ -90,7 +90,7 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
                     post = len(raw_file_poca)
                     print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
                 if drop_beads == True:
-                    raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
+                    raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < 300]
                 if i == 'intensity':
                     heatmap_data.append(int(stats(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))))
                     boxplot_data.append(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))
@@ -107,14 +107,14 @@ def do_heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_o
         well_name = []
         if isPT == True:
             for d in range(len(list_of_poca_files)):
-                name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
+                name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_merged.txt', '/561-405.PT/locPALMTracer_merged.txt')
                 well_name.append(name)
             legend = fusion_position(all_wells, well_name)
         else:
             legend = list()
             for d in list_of_poca_files:
-                well_name.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
-                legend.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
+                well_name.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_merged.txt', ''))))
+                legend.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_merged.txt', ''))))
             # heatmap_data = pad_list(heatmap_data)
 
         # Rotation of the 8x1 data to 2x4 and plot it on the heatmap

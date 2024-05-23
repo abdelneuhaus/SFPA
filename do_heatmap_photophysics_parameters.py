@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def photon_calculation(liste, gain=4, emgain=300, qe=0.95):
+def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
     exp_liste = []
     otp = gain/emgain
     for valeur in liste:
@@ -87,7 +87,7 @@ def do_heatmap_photophysics_parameters(exp, list_of_poca_files, list_of_frame_cs
 
     # Columns & Rows labels
     column_labels = heatmap_data.columns
-    row_labels = ["Number of blinks", "Number OFF times", "Number ON times", "Length OFF times", "Length ON times", "Photon/Cluster", "Photon/Localization", "sigma", "Total ON time"]#heatmap_data.index
+    row_labels = ["Number of blinks (frames)", "Number OFF times (frames)", "Number ON times (frames)", "Length OFF times (frames)", "Length ON times (frames)", "Photon/Molecule", "Photon/Localization", "Localization Precision (nm)", "Total ON time (frames)"]#heatmap_data.index
     ax.set_xticklabels(column_labels, minor=False)
     ax.set_yticklabels(row_labels, minor=False)
     

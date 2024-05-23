@@ -1,4 +1,4 @@
-from utils import read_poca_files
+from utils import read_poca_files, read_locPALMTracer_file, get_PALMTracer_files
 from preprocessing import pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_sigma, pre_process_single_intensity, get_num_fov_idx_results_dir
 from localization_precision import localization_precision
 
@@ -32,11 +32,11 @@ def fusion_position(liste1, liste2):
         resultat.append(liste1[i] + ': ' + liste2[i])
     return resultat
 
-def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
+def photon_calculation(liste, gain=3, emgain=300, qe=0.95):
     exp_liste = []
     otp = gain/emgain
     for valeur in liste:
-        exp_liste.append(valeur*otp/qe)
+        exp_liste.append(valeur*otp)
     return exp_liste
 
 
@@ -76,7 +76,7 @@ def convertir_coordonnees(coordonnees):
 
 def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
                                           isPT=True, stats=statistics.median, drop_one_event=False, drop_beads=False, 
-                                          get_boxplot=False):
+                                          get_boxplot=True):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"
     csv_sigma_label = "Loc_Precision"
@@ -102,7 +102,19 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
         # Case where index is 'intensity per loc'
         elif i == csv_int_label:
             for f in range(len(list_of_int_csv)):
-                heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event, beads=drop_beads)))))
+                # ptfiles = get_PALMTracer_files('240313_HCS_totransfer')
+                # raw_file_poca = read_locPALMTracer_file(ptfiles[f])
+                # # filtered_data = raw_file_poca[raw_file_poca['Integrated_Intensity'] < raw_file_poca['Integrated_Intensity'].quantile(1)]
+                # filtered_data = raw_file_poca[filtered_data['SigmaX(px)'] < 1.15]
+                # filtered_data = filtered_data[filtered_data['SigmaX(px)'] > 0.85]
+                # photons = photon_calculation(filtered_data['Integrated_Intensity'])
+                filtered = read_poca_files(list_of_poca_files[f])
+                # filtered = raw_file_poca[raw_file_poca['intensity']*(3.6/300) < 50000]
+                filtered = filtered[filtered['blinks'] < 15]
+                filtered = filtered[filtered['total ON'] < 50]
+                heatmap_data.append(int(stats(np.array(filtered['intensity'])/np.array(filtered['total ON'])))*(3.6/300))
+                
+                # heatmap_data.append(int(stats(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event, beads=drop_beads)))))
                 boxplot_data.append(photon_calculation(pre_process_single_intensity(list_of_int_csv[f], on_filter=drop_one_event, beads=drop_beads)))
         # Case where we compute localization precision       
         elif i == csv_sigma_label:
@@ -113,13 +125,18 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
         else:
             for f in range(len(list_of_poca_files)):
                 raw_file_poca = read_poca_files(list_of_poca_files[f])
-                if drop_one_event == True:
-                    init = len(raw_file_poca)
-                    raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
-                    post = len(raw_file_poca)
-                    print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
-                if drop_beads == True:
-                    raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
+                # FILTERING
+                # raw_file_poca = raw_file_poca[raw_file_poca['intensity']*(3.6/300) < 8000]
+                raw_file_poca = raw_file_poca[raw_file_poca['blinks'] < 15]
+                raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < 50]
+                
+                # if drop_one_event == True:
+                #     init = len(raw_file_poca)
+                #     raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
+                #     post = len(raw_file_poca)
+                #     print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
+                # if drop_beads == True:
+                #     raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
                 if i == 'intensity':
                     heatmap_data.append(int(stats(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))))
                     boxplot_data.append(photon_calculation((raw_file_poca.loc[:, i].values.tolist())))
@@ -165,7 +182,6 @@ def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list
         ax.set_xticklabels(well_name)
         plt.title(i + ' boxplots (no outliers)')        
         plt.show()
-        
         fig, ax = plt.subplots()
         boxplot = ax.boxplot(duty_cycle, showfliers=False)
         # ax.set_xticklabels(well_name)

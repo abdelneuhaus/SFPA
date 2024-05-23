@@ -12,11 +12,11 @@ def read_locPALMTracer_file(file):
 
 def read_poca_files(file):
     df = pd.read_csv(file)
-    df.loc[df['# seq OFF'] > 300000, '# seq OFF'] = df['blinks']
+    df.loc[df['# seq OFF'] > 10000, '# seq OFF'] = df['blinks']
     return df.iloc[:,:-1]
 
 def get_poca_files(repertory):
-    a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('cleaned.txt')]
+    a = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('merged.txt')]
     return [x.replace("\\", "/") for x in a]
 
 def get_csv_poca_intensity_files(repertory):

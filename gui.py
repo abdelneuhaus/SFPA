@@ -339,12 +339,13 @@ class MyWindow:
     def do_one_96heatmap(self):
         self.select_stats_method_heatmap()
         self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars96) if var.get()]
+        print(self.checkbox_values)
         self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
         do_96heatmap_one_photophysics_parameter(self.exp_name.get(), self.index_we_want, self.poca_files, self.csv_frame_files, 
                                               self.csv_intensity_files, self.csv_sigma_files,self.isPT_bool.get(), 
                                               stats=self.method_choice_stats, drop_one_event=self.drop_one_event_bool.get(),
                                               drop_beads=self.drop_beads_bool.get())
-        print("Heatmap(s) for Selected Parameters Done!")
+        print("HCS Heatmap(s) for Selected Parameters Done!")
 
 
     def select_all(self):
