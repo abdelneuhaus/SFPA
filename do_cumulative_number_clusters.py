@@ -1,21 +1,14 @@
 from utils import read_poca_files
-from preprocessing import get_num_fov_idx_results_dir
+from preprocessing import get_and_save_well_and_FOV
 
 import matplotlib.pyplot as plt
 import os
 
 
-def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True, drop_one_event=False, drop_beads=False):
+def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True):
     tmp = list()
     for i in list_of_poca_files:
         raw_file_poca = read_poca_files(i)
-        if drop_one_event == True:
-            init = len(raw_file_poca)
-            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] > 1]
-            post = len(raw_file_poca)
-            print("After One Event Dropping Step, we keep:", round(post*100/init,2), '%')
-        if drop_beads == True:
-            raw_file_poca = raw_file_poca[raw_file_poca['total ON'] < max(raw_file_poca['total ON'])*0.6]
         loc_per_frame = raw_file_poca.groupby(['frame']).size()
         cum_loc_per_frame = loc_per_frame.cumsum()
         tmp.append(cum_loc_per_frame)
@@ -31,11 +24,11 @@ def do_cumulative_number_clusters(list_of_poca_files, exp, isPT=True, drop_one_e
     legend = list()
     if isPT == True:
         for d in range(len(list_of_poca_files)):
-            name = get_num_fov_idx_results_dir(list_of_poca_files[d],'/561.PT/locPALMTracer_cleaned.txt', '/561-405.PT/locPALMTracer_cleaned.txt')
+            name = get_and_save_well_and_FOV(list_of_poca_files[d],'/SR_001.MIA/locPALMTracer_merged.txt')
             legend.append(name)
     else:
         for d in list_of_poca_files:
-            legend.append(os.path.basename(os.path.normpath(d.replace('.PT/locPALMTracer_cleaned.txt', ''))))
+            legend.append(os.path.basename(os.path.normpath(d.replace('/locPALMTracer_merged.txt', ''))))
     
     
     plt.legend(legend, loc='upper left')
