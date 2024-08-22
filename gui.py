@@ -1,9 +1,8 @@
 from tkinter import *					
-from tkinter import ttk, messagebox
-# from ttkthemes import ThemedStyle
+from tkinter import ttk
 from tkinter.filedialog import askdirectory
 
-from utils import get_PALMTracer_files, get_poca_files, get_csv_poca_frame_files, get_csv_poca_intensity_files, get_csv_poca_sigma_files
+from utils import read_poca_files, get_poca_files, get_PALMTracer_files, get_csv_poca_frame_files, get_csv_poca_intensity_files, get_csv_poca_sigma_files
 from save_loc_as_pdf import save_loc_as_pdf
 from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from do_cumulative_number_clusters import do_cumulative_number_clusters
@@ -11,16 +10,24 @@ from do_photophysics_parameters_plotting import do_photophysics_parameters_plott
 from do_heatmap_photophysics_parameters import do_heatmap_photophysics_parameters
 from do_heatmap_one_photophysics_parameter import do_heatmap_one_photophysics_parameter
 from do_96heatmap_one_photophysics_parameter import do_96heatmap_one_photophysics_parameter
+from time_distribution_same_well import time_distribution_same_well
+from time_distribution_same_row import time_distribution_same_row
+from preprocessing import fusion
+from fov_photophysics_distribution import fov_photophysics_distribution
+from well_photophysics_distribution import well_photophysics_distribution
+from do_stat_tests_fovs import do_stat_tests_fovs
+from do_stat_tests_rows import do_stat_tests_rows
 
 import os
 import statistics
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 class MyWindow:
     
     def __init__(self, root):
         window = ttk.Notebook(root)
-        # style = ThemedStyle(root)
-        # style.theme_use('adapta')
 
         # Tab 1 : Load files, etc...
         tab1 = ttk.Frame(window)
@@ -175,12 +182,30 @@ class MyWindow:
         checkbox = Checkbutton(tab4, text=self.options[8], variable=var, bg='#FAFBFC')
         checkbox.grid(row=7, column=0, sticky='W')
         self.checkboxs96.append(checkbox)
-        
         self.check_everything96 = Button(tab4, text='Check Everything', command=self.select_all96, bg='#FAFBFC')
-        self.check_everything96.grid(row=8, column=0, sticky='W')
+        self.check_everything96.grid(row=8, column=0, sticky='WE', pady=3, ipadx=1, padx=5)
+
+        self.run_time_fov_bool = BooleanVar()
+        self.run_time_fov_bool.set(False)
+        self.run_time_fov = Button(tab4, text='Time Distribution for each well (FOVs)', command=self.plot_FOVs_well_time_distribution)
+        self.run_time_fov.grid(row=9, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.run_time_row_bool = BooleanVar()
+        self.run_time_row_bool.set(False)
+        self.run_time_row = Button(tab4, text='Time Distribution for each row', command=self.plot_rows_time_distribution)
+        self.run_time_row.grid(row=9, column=1, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.run_stat_test_fov_bool = BooleanVar()
+        self.run_stat_test_fov_bool.set(False)
+        self.run_stat_test_fov = Button(tab4, text='Run Stat Tests for FOVs', command=self.run_fov_stats_test)
+        self.run_stat_test_fov.grid(row=10, column=0, sticky="WE", pady=3, ipadx=1, padx=5)
+
+        self.run_stat_test_row_bool = BooleanVar()
+        self.run_stat_test_row_bool.set(False)
+        self.run_stat_test_row = Button(tab4, text='Run Stat Tests for rows', command=self.run_row_stats_test)
+        self.run_stat_test_row.grid(row=10, column=1, sticky="WE", pady=3, ipadx=1, padx=5)   
 
 
-   
     def load_molecule_data(self):
         """
         Load PALMTracer files (ending with locPALMTracer.txt), PoCA files (cleaned PT and csv files)
@@ -243,6 +268,7 @@ class MyWindow:
                                               stats=self.method_choice_stats)
         print("Heatmap(s) for Selected Parameters Done!")
         
+        
     def do_one_96heatmap(self):
         self.select_stats_method_heatmap()
         self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars96) if var.get()]
@@ -280,3 +306,92 @@ class MyWindow:
             self.use_boxplot = True
         else:
             self.use_boxplot = False
+
+
+    def plot_FOVs_well_time_distribution(self):
+        idx = list(map(str, range(1, 13)))
+        cols = list(map(str, [chr(i) for i in range(ord('A'), ord('H')+1)]))
+        all_wells = fusion(cols, idx)
+        for i in all_wells:
+            if any(i in j for j in self.poca_files):
+                time_distribution_same_well(self.repertory_path+'/'+i, i, self.exp_name.get())
+                fov_photophysics_distribution(self.repertory_path+'/'+i, self.exp_name.get())
+        print("Time Evolution between and for each well FOVs Done")
+
+
+    def plot_rows_time_distribution(self):
+        idx = list(map(str, range(1, 13)))  # Indices possibles, ajustables selon vos besoins
+        cols = list(map(str, [chr(i) for i in range(ord('A'), ord('H')+1)]))  # Colonnes possibles, ajustables
+        for col in cols:
+            super_table = []  # Contient les données pour toutes les `wells` du `col`
+            wells = []
+            relevant_files = [f for f in self.poca_files if any(f"/{col}{i}/" in f for i in idx)]
+            # Grouper les fichiers pertinents par puit
+            for well in [f"{col}{i}" for i in idx]:
+                well_files = [f for f in relevant_files if f"/{well}/" in f]
+                if well_files:
+                    combined_data = pd.DataFrame()
+                    for file in well_files:
+                        raw_data = read_poca_files(file)
+                        filtered_data = raw_data[raw_data['total ON'] < 100]#np.quantile(raw_data['total ON'], 1.0)]
+                        filtered_data = filtered_data[filtered_data['blinks'] < 20]#np.quantile(raw_data['blinks'], 1.0)]
+                        filtered_data = filtered_data[filtered_data['intensity'] < np.quantile(raw_data['intensity'], 1.0)]
+                        filtered_data["avg_on"] = np.array(filtered_data['total ON'] / filtered_data['# seq ON'])
+                        filtered_data["photon_loc"] = np.array(filtered_data['intensity'] / filtered_data['total ON'])
+                        grouped_data = filtered_data.groupby(pd.cut(filtered_data['frame'], list(range(0, 5001, 500)))).mean()
+                        combined_data = pd.concat([combined_data, grouped_data], ignore_index=True)
+                    # well_photophysics_distribution(combined_data, well, self.exp_name.get())
+                    super_table.append(combined_data)
+                    wells.append(well)
+            if super_table:
+                time_distribution_same_row(super_table, self.exp_name.get(), col, wells)
+        print("Time Evolution between and for Plate Rows Done!")
+
+
+    def run_fov_stats_test(self):
+        idx = list(map(str, range(1, 13)))
+        cols = list(map(str, [chr(i) for i in range(ord('A'), ord('H')+1)]))
+        all_wells = fusion(cols, idx)
+        self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars96) if var.get()]
+        self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
+        for i in all_wells:
+            if any(i in j for j in self.poca_files):
+                poca_files = get_poca_files(self.repertory_path+'/'+i)
+                csv_intensity_files = get_csv_poca_intensity_files(self.repertory_path+'/'+i)
+                csv_frame_files = get_csv_poca_frame_files(self.repertory_path+'/'+i)
+                csv_sigma_files = get_csv_poca_sigma_files(self.repertory_path+'/'+i)
+                do_stat_tests_fovs(self.exp_name.get(), i, self.index_we_want, poca_files, csv_frame_files, 
+                             csv_intensity_files, csv_sigma_files)
+        print("Statistical Tests for FOVs of each well done!")
+
+
+    def run_row_stats_test(self):
+        idx = list(map(str, range(1, 13)))
+        cols = list(map(str, [chr(i) for i in range(ord('A'), ord('H')+1)]))
+        self.checkbox_values = [option for option, var in zip(range(0, 9), self.checkbox_vars96) if var.get()]
+        self.index_we_want = [self.phot_parameters[i] for i in self.checkbox_values]
+        for col in cols:
+            wells_data = {}
+            for i in idx:
+                well = f"{col}{i}"
+                if any(f"/{well}/" in j for j in self.poca_files):                    
+                    # Récupérer les fichiers pour le puit
+                    poca_files = get_poca_files(self.repertory_path + '/' + well)
+                    csv_intensity_files = get_csv_poca_intensity_files(self.repertory_path + '/' + well)
+                    csv_frame_files = get_csv_poca_frame_files(self.repertory_path + '/' + well)
+                    csv_sigma_files = get_csv_poca_sigma_files(self.repertory_path + '/' + well)
+                    # Concaténer les données de chaque type
+                    well_poca_data = pd.DataFrame()
+                    for file in poca_files:
+                        raw_data = read_poca_files(file)
+                        well_poca_data = pd.concat([well_poca_data, raw_data], ignore_index=True)
+                    wells_data[well] = {
+                        "poca_data": well_poca_data,
+                        "frame_data": csv_frame_files,
+                        "intensity_data": csv_intensity_files,
+                        "sigma_data": csv_sigma_files
+                    }
+            if wells_data:
+                # Appliquer les tests statistiques sur les données regroupées par puit
+                do_stat_tests_rows(self.exp_name.get(), col, self.index_we_want, wells_data)
+        print("Statistical Tests for FOVs of each well and between wells in the same row done!")
